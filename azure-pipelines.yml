@@ -28,14 +28,14 @@ steps:
 - script: terraform validate
   displayName: 'Validate terraform'
 
-- script: cd tests && terraform init -input=false -backend=false
+- script: cd test && terraform init -input=false -backend=false
   displayName: 'Terraform init tests'
 
-- script: cd tests && terraform init -input=false -backend=false
+- script: cd test && terraform init -input=false -backend=false
   displayName: 'Validate tests'
 
 - script: cd examples/simple && terraform init -input=false -backend=false
-  displayName: 'Terraform init tests'
+  displayName: 'Terraform init examples'
 
 - script: cd examples/simple && terraform validate
   displayName: 'Validate examples'
