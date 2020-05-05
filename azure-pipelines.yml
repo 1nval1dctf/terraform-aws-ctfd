@@ -2,11 +2,17 @@ trigger:
 - master
 
 pool:
-  vmImage: 'ubuntu-16.04'
-
-container: hashicorp/terraform:latest
+  vmImage: 'ubuntu-latest'
 
 steps:
+- script: |
+    # Download and unzip Terraform
+    wget https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
+    unzip terraform_0.12.24_linux_amd64.zip
+    # Move Terraform to a folder which is in $PATH
+    sudo mv terraform /usr/local/bin/
+  displayName: Install Terraform
+
 - script: terraform init -input=false -backend=false
   displayName: 'Terraform init'
 
