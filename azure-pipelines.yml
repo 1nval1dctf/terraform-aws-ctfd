@@ -1,0 +1,23 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+container: hashicorp/terraform:latest
+
+steps:
+- script: terraform init -input=false -backend=false
+  displayName: 'Terraform init'
+
+- script: find . -name ".terraform" -prune -o -type f -name "*.tf" -exec dirname {} \;|sort -u | while read m; do (cd "$m" && terraform validate && echo "√ $m") || exit 1 ; done
+  displayName: 'Terraform validate'
+
+- script: if [[ -n "$(terraform fmt -write=false)" ]]; then echo "Some terraform files need be formatted, run 'terraform fmt' to fix"; exit 1; fi
+  displayName: 'Check if Terraform configurations are properly formatted'
+
+- script: curl -L "$(curl -Ls https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" -o tflint.zip && unzip tflint.zip && rm tflint.zip
+  displayName: 'Install tflint'
+
+- script: tflint
+  displayName: 'Check Terraform configurations with tflint'
