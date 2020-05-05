@@ -79,7 +79,7 @@ data "aws_iam_policy_document" "asg" {
     ]
 
     resources = [
-        "*"
+      "*"
     ]
   }
 }
@@ -115,7 +115,7 @@ resource "aws_iam_instance_profile" "asg" {
 }
 
 resource "aws_iam_role_policy" "asg" {
-  role = aws_iam_role.asg.id
+  role   = aws_iam_role.asg.id
   policy = data.aws_iam_policy_document.asg.json
 }
 
@@ -137,13 +137,13 @@ resource "aws_launch_configuration" "lc" {
 
 # Create the autoscaling group.
 resource "aws_autoscaling_group" "asg" {
-  launch_configuration  = aws_launch_configuration.lc.name
-  vpc_zone_identifier   = module.subnets.private_subnet_ids
-  name                  = "${var.app_name}-${aws_launch_configuration.lc.name}"
-  min_size              = var.asg_min_size
-  max_size              = var.asg_max_size
-  target_group_arns     = [aws_alb_target_group.group.arn]
-  enabled_metrics       = ["GroupTerminatingInstances", "GroupMaxSize", "GroupDesiredCapacity", "GroupPendingInstances", "GroupInServiceInstances", "GroupMinSize", "GroupTotalInstances"]
+  launch_configuration = aws_launch_configuration.lc.name
+  vpc_zone_identifier  = module.subnets.private_subnet_ids
+  name                 = "${var.app_name}-${aws_launch_configuration.lc.name}"
+  min_size             = var.asg_min_size
+  max_size             = var.asg_max_size
+  target_group_arns    = [aws_alb_target_group.group.arn]
+  enabled_metrics      = ["GroupTerminatingInstances", "GroupMaxSize", "GroupDesiredCapacity", "GroupPendingInstances", "GroupInServiceInstances", "GroupMinSize", "GroupTotalInstances"]
 
   tag {
     key                 = "Name"

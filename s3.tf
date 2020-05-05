@@ -5,7 +5,7 @@ data "aws_iam_policy_document" "s3_full_access" {
     ]
 
     resources = [
-        aws_s3_bucket.challenge_bucket.arn
+      aws_s3_bucket.challenge_bucket.arn
     ]
     principals {
       type        = "Service"
@@ -14,13 +14,13 @@ data "aws_iam_policy_document" "s3_full_access" {
   }
   statement {
     actions = [
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:DeleteObject"
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:DeleteObject"
     ]
 
     resources = [
-        "${aws_s3_bucket.challenge_bucket.arn}/*"
+      "${aws_s3_bucket.challenge_bucket.arn}/*"
     ]
     principals {
       type        = "Service"
@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "s3_full_access" {
 }
 
 resource "aws_s3_bucket" "challenge_bucket" {
-  acl = "public-read"
+  acl           = "public-read"
   force_destroy = var.force_destroy_challenge_bucket
 }
 

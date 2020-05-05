@@ -9,9 +9,9 @@ resource "aws_lb" "lb" {
 
 # Create a new target group for the application load balancer.
 resource "aws_alb_target_group" "group" {
-  port      = 80
-  protocol  = "HTTP"
-  vpc_id    = module.vpc.vpc_id
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = module.vpc.vpc_id
 
   lifecycle {
     create_before_destroy = true
@@ -20,7 +20,7 @@ resource "aws_alb_target_group" "group" {
   # Initial deployment will 302 redirect to setup page. We should not consider
   # the instnace unhealthy in that case
   health_check {
-    path = "/"
+    path    = "/"
     matcher = "200,302"
   }
 }
@@ -33,7 +33,7 @@ resource "aws_alb_listener" "listener_http" {
   port              = "80"
   protocol          = "HTTP"
   # only if certificate_arm is NOT set
-  count             = var.https_certificate_arn != "" ? 0 : 1
+  count = var.https_certificate_arn != "" ? 0 : 1
 
   default_action {
     target_group_arn = aws_alb_target_group.group.arn
@@ -47,7 +47,7 @@ resource "aws_alb_listener" "listener_http_forward" {
   port              = "80"
   protocol          = "HTTP"
   # only if certificate_arm is set
-  count             = var.https_certificate_arn != "" ? 1 : 0
+  count = var.https_certificate_arn != "" ? 1 : 0
 
   default_action {
     type = "redirect"
@@ -67,7 +67,7 @@ resource "aws_alb_listener" "listener_https" {
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = var.https_certificate_arn
   # only if certificate_arm is set
-  count             = var.https_certificate_arn != "" ? 1 : 0
+  count = var.https_certificate_arn != "" ? 1 : 0
 
   default_action {
     target_group_arn = aws_alb_target_group.group.arn
