@@ -52,3 +52,8 @@ output "lb_dns_name" {
   value       = aws_lb.lb.dns_name
   description = "DNS name for the Load Balancer"
 }
+
+output "lb_dns_zone_id" {
+  value       = aws_lb.lb.zone_id
+  description = "The canonical hosted zone ID of the Load Balancer"
+}

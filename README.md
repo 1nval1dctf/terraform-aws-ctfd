@@ -111,6 +111,7 @@ graph TB
 | Name | Description |
 |------|-------------|
 | lb_dns_name | DNS name for the Load Balancer |
+| lb_dns_zone_id | The canonical hosted zone ID of the Load Balancer |
 | s3_bucket | Challenge bucket arn |
 | vpc_id | Id for the VPC created for CTFd |
 | aws_availability_zones | list of availability zones ctfd was deployed into |
