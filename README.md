@@ -1,5 +1,7 @@
 # CTFd AWS Terraform module
 
+[![Build Status](https://dev.azure.com/invalidctf/invalidctf/_apis/build/status/1nval1dctf.terraform-aws-ctfd?branchName=master)](https://dev.azure.com/invalidctf/invalidctf/_build/latest?definitionId=2&branchName=master)
+
 Terraform module to deploy [CTFd](https://ctfd.io/) into scalable AWS infrastructure
 
 *WARNING* This module has never been battle tested. It was developed for use in a CTF for a security conference that was cancelled due to COVID-19. The author is neither a CTFd developer nor a cloud expert and did this module partially as a learning exercise. That's not to say you shouldn't use it but if you do plan on using it, and have expertise, it would be great to have feedback/contributions on both the deployment model and terraform coding. Further you almost certainly want to scale out the instance from what is done below - these were chosen to keep costs low during development.
