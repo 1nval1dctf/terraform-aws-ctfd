@@ -39,25 +39,34 @@ write_files:
     permissions: '0755'
 
 runcmd:
+ # stop nginx while we set up a few things
+ - [ systemctl, stop, nginx ]
  - [ pip3, install, awslogs ]
  - [ git, config, --system, user.name, "cloud-init" ]
  - [ git, config, --system, user.email, "cloud-init@gitlab.com" ]
- # used for nginx cache
- - [ mkdir, /var/nginx ]
- - [ chown, www-data, /var/nginx ]
- - [ mkdir, -p, ${LOG_DIR} ]
- - [ chown, -R, "www-data:www-data", ${LOG_DIR} ]
  # Get ctfd and install requirements
  - [ git, clone, "-b", "${CTFD_VERSION}", "--depth", "1", "https://github.com/CTFd/CTFd.git", ${CTFD_DIR} ]
  - [ pip3, install, -r, ${CTFD_DIR}/requirements.txt ]
+ # Set permissions for ctdf and create log dirs
+ - [ chown, -R, "${SERVICE_USER}:${SERVICE_GROUP}", ${CTFD_DIR} ]
+ - [ mkdir, -p, ${LOG_DIR} ]
+ - [ chown, -R, "${SERVICE_USER}:${SERVICE_GROUP}", ${LOG_DIR} ]
  # Check the db is up.
  - [ .${SCRIPTS_DIR}/db_check.sh ]
- # initalise the db.
+ # initialise the db.
  - [ .${SCRIPTS_DIR}/db_upgrade.sh ]
+ # setup nginx
  - [ rm, /etc/nginx/sites-enabled/default ]
  - [ rm, /etc/nginx/sites-available/default ]
  - [ ln, -s, /etc/nginx/sites-available/ctfd, /etc/nginx/sites-enabled ]
+ # used for nginx cache
+ - [ mkdir, /var/nginx ]
+ - [ chown, ${SERVICE_USER}, /var/nginx ]
+ # Setup our services to manage ctfd on demand
  - [ systemctl, daemon-reload ]
  - [ systemctl, start, gunicorn.socket ]
  - [ systemctl, enable, gunicorn.socket ]
- - [ systemctl, restart, nginx ]
+ # This will trigger CTFd to start up
+ - [ sudo, -u, ${SERVICE_USER}, curl, --unix-socket, /run/gunicorn.sock, http ]
+ # start nginx again now that we are ready to serve CTFd
+ - [ systemctl, start, nginx ]

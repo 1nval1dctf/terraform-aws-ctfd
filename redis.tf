@@ -16,5 +16,5 @@ resource "aws_elasticache_replication_group" "default" {
   security_group_ids         = [aws_security_group.elasticache.id]
 
 
-  number_cache_clusters = var.elasticache_cluster_intances
+  number_cache_clusters = var.elasticache_cluster_instances
 }

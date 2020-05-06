@@ -2,4 +2,6 @@
 export DATABASE_URL=${DATABASE_URL}
 
 echo "Doing db upgrade"
-python3 /opt/ctfd/manage.py db upgrade
+pushd ${CTFD_DIR}
+python3 manage.py db upgrade
+popd

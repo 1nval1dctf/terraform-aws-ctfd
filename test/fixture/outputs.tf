@@ -1,19 +1,15 @@
-output "aws_region" {
-  value = module.test.aws_region
-}
-
 output "aws_availability_zones" {
   value = module.test.aws_availability_zones
 }
 
 output "s3_bucket_name" {
   description = ""
-  value = module.test.s3_bucket.bucket
+  value       = module.test.s3_bucket.bucket
 }
 
 output "s3_bucket_region" {
   description = ""
-  value = module.test.s3_bucket.region
+  value       = module.test.s3_bucket.region
 }
 
 output "vpc_id" {
@@ -36,12 +32,8 @@ output "rds_endpoint_address" {
   value = module.test.rds_endpoint_address
 }
 
-output "rds_instance_id" {
-  value = module.test.rds_first_instance.id
-}
-
-output "rds_instance_endpoint" {
-  value = module.test.rds_first_instance.endpoint
+output "rds_id" {
+  value = module.test.rds_id
 }
 
 output "rds_port" {

@@ -1,4 +1,4 @@
-# CTFd AWS Terrafom module
+# CTFd AWS Terraform module
 
 Terraform module to deploy [CTFd](https://ctfd.io/) into scalable AWS infrastructure
 
@@ -12,9 +12,9 @@ module "ctfd" {
   source     = "git::https://github.com/1nval1dctf/terraform-aws-module-ctfd.git?ref=master"
   force_destroy_challenge_bucket = true
   db_cluster_instance_type = "db.t2.small"
-  db_delection_protection = false
+  db_deletion_protection = false
   elasticache_cluster_instance_type = "cache.t2.micro"
-  elasticache_cluster_intances = 2
+  elasticache_cluster_instances = 2
   asg_instance_type = "t2.micro"
   workers = 3
   worker_connections = 3000
@@ -60,7 +60,7 @@ graph TB
     end
 ```
 
-*Note* CTFd does not currently support seperate databse readers/writers or propper sharding for ElastiCache so the cluster setups are likely overkill for what we get.
+*Note* CTFd does not currently support separate database readers/writers or proper sharding for ElastiCache so the cluster setups are likely overkill for what we get.
 
 ## Examples
 
@@ -72,23 +72,22 @@ graph TB
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | ctfd_version | Version of CTFd to deploy | string |  | yes |
-| aws_region | Region to deploy CTFd into | string | `ap-southeast-2` | no |
 | app_name | Name of application (ex: `ctfd`) | string | `ctfd` | no |
 | vpc_cidr_block | The top-level CIDR block for the VPC. | string | `10.0.0.0/16` | no |
 | force_destroy_challenge_bucket | Whether the S3 bucket containing the CTFD challenge data should be force destroyed | bool | false | no |
 | elasticache_cluster_id | Id to assign the new ElastiCache cluster | string | `ctfd-cache-cluster` | no |
-| elasticache_cluster_intances | Number of instances in ElastiCache cluster | number | `3` | no |
+| elasticache_cluster_instances | Number of instances in ElastiCache cluster | number | `3` | no |
 | elasticache_cluster_instance_type | Instance type for instance in ElastiCache cluster | string | `cache.m5.large` | no |
 | elasticache_cluster_port | Port to connect to the ElastiCache cluster on | number | `6379` | no |
-| db_cluster_instances | Number of intances to create in the RDS cluster | number | `1` | no |
+| db_cluster_instances | Number of instances to create in the RDS cluster | number | `1` | no |
 | db_cluster_name | Name of the created RDS cluster | string | `ctfd-db-cluster` | no |
-| db_cluster_instance_type | Type of intances to create in the RDS cluster | string | `db.r5.large` | no |
+| db_cluster_instance_type | Type of instances to create in the RDS cluster | string | `db.r5.large` | no |
 | db_engine | Engine for the RDS cluster | string | `aurora-mysql` | no |
 | db_engine_version | Engine version for the RDS cluster | string | `5.7.mysql_aurora.2.04.6` | no |
 | db_port | Port to connect to the RDS cluster on | number | `3306` | no |
 | db_user | Username for the RDS database | string | `ctfd` | no |
 | db_name | Name for the database in RDS | string | `ctfd` | no |
-| db_delection_protection | If true database will not be able to be deleted without manual intervention | bool | `true` | no |
+| db_deletion_protection | If true database will not be able to be deleted without manual intervention | bool | `true` | no |
 | launch_configuration_name_prefix | Name prefix for the launch configuration | string | `ctfd-web-` | no |
 | asg_min_size | Minimum number of instances in frontend auto scaling group | number | `1` | no |
 | asg_max_size | Maximum number of instances in frontend auto scaling group | number | `1` | no |
@@ -110,17 +109,16 @@ graph TB
 | Name | Description |
 |------|-------------|
 | lb_dns_name | DNS name for the Load Balancer |
-| aws_region | AWS region |
 | s3_bucket | Challenge bucket arn |
 | vpc_id | Id for the VPC created for CTFd |
-| aws_availability_zones | list of av ailaability zones ctfd was deployed into |
-| private_subnet_ids | List of private subnets that contain backend infrastructure (RDS, Elasticache, EC2) |
+| aws_availability_zones | list of availability zones ctfd was deployed into |
+| private_subnet_ids | List of private subnets that contain backend infrastructure (RDS, ElastiCache, EC2) |
 | public_subnet_ids | List of public subnets that contain frontend infrastructure (ALB) |
-| elasticache_cluster_id | Id fof ElastiCache cluster |
+| elasticache_cluster_id | Id of the ElastiCache cluster |
 | rds_endpoint_address | Endpoint address for RDS |
+| rds_id | Id of RDS cluster |
 | rds_port | Port for RDS |
-| rds_first_instance | First instance of RDS cluster - exposed purely for testing as terratest can only test an RDS instance not a cluster endpoint |
-| rds_password | Generated password for the databse |
+| rds_password | Generated password for the database |
 
 ## building / contributing
 

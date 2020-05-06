@@ -33,7 +33,7 @@ resource "aws_rds_cluster" "ctfdb" {
   #snapshot_identifier             = "ctfd-db-snapshot"
   skip_final_snapshot             = true
   engine_version                  = var.db_engine_version
-  deletion_protection             = var.db_delection_protection
+  deletion_protection             = var.db_deletion_protection
   enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
 
 }

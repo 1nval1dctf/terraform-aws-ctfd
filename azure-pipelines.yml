@@ -22,26 +22,23 @@ steps:
     rm tflint.zip
   displayName: Install tflint
 
-- script: terraform init -input=false -backend=false
-  displayName: 'Terraform init'
-
-- script: terraform validate
+- script: make validate
   displayName: 'Validate terraform'
 
-- script: cd test/fixture && terraform init -input=false -backend=false
-  displayName: 'Terraform init tests'
+- script: make format
+  displayName: 'Ensure terraform format'
 
-- script: cd test/fixture && terraform init -input=false -backend=false
+- script: make validate_tests
   displayName: 'Validate tests'
 
-- script: cd examples/simple && terraform init -input=false -backend=false
-  displayName: 'Terraform init examples'
+- script: make format_tests
+  displayName: 'Ensure terraform format for tests'
 
-- script: cd examples/simple && terraform validate
+- script: make validate_examples
   displayName: 'Validate examples'
 
-- script: if [[ -n "$(terraform fmt -write=false)" ]]; then echo "Some terraform files need be formatted, run 'terraform fmt' to fix"; exit 1; fi
-  displayName: 'Check if Terraform configurations are properly formatted'
+- script: make format_examples
+  displayName: 'Ensure terraform format for examples'
 
 - script: tflint
   displayName: 'Check Terraform configurations with tflint'

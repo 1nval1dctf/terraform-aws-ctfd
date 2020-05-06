@@ -1,9 +1,3 @@
-variable "aws_region" {
-  type        = string
-  description = "Region to deploy CTFd into"
-  default     = "ap-southeast-2"
-}
-
 variable "app_name" {
   type        = string
   default     = "ctfd"
@@ -29,7 +23,7 @@ variable "elasticache_cluster_id" {
   default     = "ctfd-cache-cluster"
 }
 
-variable "elasticache_cluster_intances" {
+variable "elasticache_cluster_instances" {
   type        = number
   description = "Number of instances in ElastiCache cluster"
   default     = 3
@@ -50,7 +44,7 @@ variable "elasticache_cluster_port" {
 # RDS configuration
 variable "db_cluster_instances" {
   type        = number
-  description = "Number of intances to create in the RDS cluster"
+  description = "Number of instances to create in the RDS cluster"
   default     = 1
 }
 
@@ -62,7 +56,7 @@ variable "db_cluster_name" {
 
 variable "db_cluster_instance_type" {
   type        = string
-  description = "Type of intances to create in the RDS cluster"
+  description = "Type of instances to create in the RDS cluster"
   default     = "db.r5.large"
 }
 
@@ -75,7 +69,7 @@ variable "db_engine" {
 variable "db_engine_version" {
   type        = string
   description = "Engine version for the RDS cluster"
-  default     = "5.7.mysql_aurora.2.04.6"
+  default     = "5.7.mysql_aurora.2.07.2"
 }
 
 variable "db_port" {
@@ -96,7 +90,7 @@ variable "db_name" {
   default     = "ctfd"
 }
 
-variable "db_delection_protection" {
+variable "db_deletion_protection" {
   type        = bool
   description = "If true database will not be able to be deleted without manual intervention"
   default     = true

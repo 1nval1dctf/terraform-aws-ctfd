@@ -5,8 +5,8 @@ After=network.target
 
 [Service]
 Type=notify
-User=www-data
-Group=www-data
+User=${SERVICE_USER}
+Group=${SERVICE_GROUP}
 WorkingDirectory=${CTFD_DIR}
 ExecStart=${SCRIPTS_DIR}/gunicorn.sh
 ExecReload=/bin/kill -s HUP $MAINPID

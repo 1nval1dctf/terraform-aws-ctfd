@@ -13,6 +13,8 @@ import (
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	aws_sdk "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/rds"
 )
 
 func Test(t *testing.T) {
@@ -42,7 +44,7 @@ func Test(t *testing.T) {
 		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
 
 		// AWS
-		awsRegion := terraform.Output(t, terraformOptions, "aws_region") 
+		awsRegion := terraformOptions.Vars["aws_region"].(string)
 		awsAvailabilityZones := terraform.OutputList(t, terraformOptions, "aws_availability_zones") 
 	
 		vpcId := terraform.Output(t, terraformOptions, "vpc_id")
@@ -95,19 +97,22 @@ func Test(t *testing.T) {
 	test_structure.RunTestStage(t, "validate_rds", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
 
-		awsRegion := terraform.Output(t, terraformOptions, "aws_region") 
+		awsRegion := terraformOptions.Vars["aws_region"].(string)
 		
-		//rdsEndpointAddress := terraform.Output(t, terraformOptions, "rds_endpoint_address")
-		rdsInstanceEndpointAddress := terraform.Output(t, terraformOptions, "rds_instance_endpoint")
-		
-		//rdsPassword := terraform.Output(t, terraformOptions, "rds_password")
-		dbInstanceId := terraform.Output(t, terraformOptions, "rds_instance_id") 
+		rdsEndpointAddress := terraform.Output(t, terraformOptions, "rds_endpoint_address")
 		rdsPort := terraform.Output(t, terraformOptions, "rds_port") 
+		rdsId := terraform.Output(t, terraformOptions, "rds_id")
 
-		rdsRetrievedAddress := aws.GetAddressOfRdsInstance(t, dbInstanceId, awsRegion)
-		rdsRetrievedPort := aws.GetPortOfRdsInstance(t, dbInstanceId, awsRegion)
+		rdsClient := aws.NewRdsClient(t, awsRegion)
+		input := rds.DescribeDBClustersInput{DBClusterIdentifier: aws_sdk.String(rdsId)}
+		dbClusters, err := rdsClient.DescribeDBClusters(&input)
+		if err != nil {
+			t.Errorf("Error getting rds info: %v\n", err)
+		}
+		rdsRetrievedEndpointAddress := aws_sdk.StringValue(dbClusters.DBClusters[0].Endpoint)
+		assert.Equal(t, rdsRetrievedEndpointAddress, rdsEndpointAddress)
 
-		assert.Equal(t, rdsRetrievedAddress, rdsInstanceEndpointAddress)
+		rdsRetrievedPort := *dbClusters.DBClusters[0].Port
 		rdsPortInt, err := strconv.ParseInt(rdsPort, 10, 64)
 		if err == nil {
 			assert.Equal(t, rdsRetrievedPort, rdsPortInt)
@@ -142,12 +147,17 @@ func Test(t *testing.T) {
 
 func configureTerraformOptions(t *testing.T, fixtureFolder string) *terraform.Options {
 
+	// Pick a random AWS region to test in. This helps ensure your code works in all regions.
+	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
+
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
 		TerraformDir: fixtureFolder,
 
 		// Variables to pass to our Terraform code using -var options
-		Vars: map[string]interface{}{},
+		Vars: map[string]interface{}{
+			"aws_region":    awsRegion,
+		},
 	}
 
 	return terraformOptions
