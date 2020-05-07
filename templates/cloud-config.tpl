@@ -7,6 +7,7 @@ packages:
  - python3-dev
  - python3-pip
  - nginx
+ - unzip
 
 bootcmd:
  - [ mkdir, -p, ${SCRIPTS_DIR} ]
@@ -41,16 +42,28 @@ write_files:
 runcmd:
  # stop nginx while we set up a few things
  - [ systemctl, stop, nginx ]
+ # Install aws cli
+ - [ curl, "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip", -o, "awscliv2.zip" ]
+ - [ unzip, awscliv2.zip ]
+ - [ ./aws/install ]
+ - [ rm, -rf, aws ]
+ - [ rm, awscliv2.zip ]
+ # Install awslogs
  - [ pip3, install, awslogs ]
+ # Setup git
  - [ git, config, --system, user.name, "cloud-init" ]
  - [ git, config, --system, user.email, "cloud-init@gitlab.com" ]
- # Get ctfd and install requirements
- - [ git, clone, "-b", "${CTFD_VERSION}", "--depth", "1", "https://github.com/CTFd/CTFd.git", ${CTFD_DIR} ]
- - [ pip3, install, -r, ${CTFD_DIR}/requirements.txt ]
+ # Get ctfd
+ - [ git, clone, "-b", "${CTFD_VERSION}", "--depth", "1", "https://github.com/CTFd/CTFd.git", "${CTFD_DIR}" ]
+ # Extract the CTFd overlay on top of the checkout
+ - [ aws, s3, cp, "s3://${CTFD_OVERLAY}", "ctfd_overlay.tar.gz" ]
+ - [ tar, -xzf, "ctfd_overlay.tar.gz", -C, "${CTFD_DIR}" ]
+ # Install CTFd requirements
+ - [ pip3, install, -r, "${CTFD_DIR}/requirements.txt" ]
  # Set permissions for ctdf and create log dirs
- - [ chown, -R, "${SERVICE_USER}:${SERVICE_GROUP}", ${CTFD_DIR} ]
- - [ mkdir, -p, ${LOG_DIR} ]
- - [ chown, -R, "${SERVICE_USER}:${SERVICE_GROUP}", ${LOG_DIR} ]
+ - [ chown, -R, "${SERVICE_USER}:${SERVICE_GROUP}", "${CTFD_DIR}" ]
+ - [ mkdir, -p, "${LOG_DIR}" ]
+ - [ chown, -R, "${SERVICE_USER}:${SERVICE_GROUP}", "${LOG_DIR}" ]
  # Check the db is up.
  - [ .${SCRIPTS_DIR}/db_check.sh ]
  # initialise the db.

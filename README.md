@@ -11,7 +11,7 @@ Terraform module to deploy [CTFd](https://ctfd.io/) into scalable AWS infrastruc
 
 ```hcl
 module "ctfd" {
-  source     = "git::https://github.com/1nval1dctf/terraform-aws-module-ctfd.git?ref=master"
+  source  = "1nval1dctf/ctfd/aws"
   force_destroy_challenge_bucket = true
   db_cluster_instance_type = "db.t2.small"
   db_deletion_protection = false
@@ -21,6 +21,8 @@ module "ctfd" {
   workers = 3
   worker_connections = 3000
   ctfd_version = "2.3.3"
+  # If you need custom themes or plugins create a gzip tarball that can be applied to the root ctfd source checkout directory. i.e. should contain `CTFd/[plugins/themes]/your_extra_stuff`
+  ctfd_overlay = "path/to/ctd_overlay.tar.gz"
 }
 ```
 
@@ -74,6 +76,7 @@ graph TB
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | ctfd_version | Version of CTFd to deploy | string |  | yes |
+| ctfd_overlay | Path to compressed package to unpack over the top of the CTFd repository. Used to package custom themes and plugins. Must be a gzip compressed tarball | string |  | no |
 | app_name | Name of application (ex: `ctfd`) | string | `ctfd` | no |
 | vpc_cidr_block | The top-level CIDR block for the VPC. | string | `10.0.0.0/16` | no |
 | force_destroy_challenge_bucket | Whether the S3 bucket containing the CTFD challenge data should be force destroyed | bool | false | no |
@@ -123,7 +126,13 @@ graph TB
 | rds_port | Port for RDS |
 | rds_password | Generated password for the database |
 
-## building / contributing
+## Debugging
+
+AWS Systems Manager Session Manager is configured on all instances created for this setup. See [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) for more information.
+
+## Building / Contributing
+
+### Install prerequisites
 
 Golang 
 
@@ -141,6 +150,10 @@ unzip terraform_0.12.24_linux_amd64.zip
 sudo mv terraform /usr/local/bin/
 rm terraform_0.12.24_linux_amd64.zip
 ```
+
+### Run tests
+
+Warning this will spin up CTFd which will cost you some money.
 
 ```bash
 make

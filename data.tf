@@ -1,6 +1,14 @@
 locals {
   service_user  = "www-data"
   service_group = "www-data"
+  overlay_file  = fileexists(var.ctfd_overlay) ? var.ctfd_overlay : "${path.module}/templates/empty.tar.gz"
+}
+
+resource "aws_s3_bucket_object" "ctfd_overlay" {
+  bucket = aws_s3_bucket.challenge_bucket.id
+  key    = "ctfd_overlay"
+  source = local.overlay_file
+  etag = filemd5(local.overlay_file)
 }
 
 data "template_file" "db_check" {
@@ -68,6 +76,7 @@ data "template_file" "cloud-config" {
     LOG_DIR          = var.log_dir
     SCRIPTS_DIR      = var.scripts_dir
     CTFD_DIR         = var.ctfd_dir
+    CTFD_OVERLAY     = "${aws_s3_bucket.challenge_bucket.id}/${aws_s3_bucket_object.ctfd_overlay.id}"
     DB_CHECK         = base64encode(data.template_file.db_check.rendered)
     DB_UPGRADE       = base64encode(data.template_file.db_upgrade.rendered)
     GUNICORN_SERVICE = base64encode(data.template_file.gunicorn_service.rendered)

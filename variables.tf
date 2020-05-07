@@ -175,6 +175,12 @@ variable "ctfd_version" {
   description = "Version of CTFd to deploy"
 }
 
+variable "ctfd_overlay" {
+  type        = string
+  default     = "most/certainly/does/not/exist"
+  description = "Path to compressed package to unpack over the top of the CTFd repository. Used to package custom themes and plugins. Must be a gzip compressed tarball"
+}
+
 variable "scripts_dir" {
   type        = string
   description = "Where helper scripts are deployed on EC2 instances of CTFd asg"
