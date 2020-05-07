@@ -8,7 +8,7 @@ resource "aws_s3_bucket_object" "ctfd_overlay" {
   bucket = aws_s3_bucket.challenge_bucket.id
   key    = "ctfd_overlay"
   source = local.overlay_file
-  etag = filemd5(local.overlay_file)
+  etag   = filemd5(local.overlay_file)
 }
 
 data "template_file" "db_check" {
