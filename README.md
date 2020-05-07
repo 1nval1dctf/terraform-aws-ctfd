@@ -139,7 +139,7 @@ aws ssm start-session --target [target_id]
 
 You may want to find the frontend instances with the following(assuming default app-name)
 ```bash
-aws ec2 describe-instances --filters "Name=tag-value,Values=ctfd-autoscaling-group" --query "Reservations[*].Instances[*].ImageId"
+aws ec2 describe-instances --filters "Name=tag-value,Values=ctfd-autoscaling-group" --query "Reservations[*].Instances[*].InstanceId"
 ```
 
 ## Building / Contributing
