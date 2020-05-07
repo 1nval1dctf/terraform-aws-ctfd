@@ -130,6 +130,18 @@ graph TB
 
 AWS Systems Manager Session Manager is configured on all instances created for this setup. See [here](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html) for more information.
 
+If you install aws cli and the session manager plugin https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
+
+Then you can do the following:
+```bash
+aws ssm start-session --target [target_id]
+```
+
+You may want to find the frontend instances with the following(assuming default app-name)
+```bash
+aws ec2 describe-instances --filters "Name=tag-value,Values=ctfd-autoscaling-group" --query "Reservations[*].Instances[*].ImageId"
+```
+
 ## Building / Contributing
 
 ### Install prerequisites
