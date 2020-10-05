@@ -149,18 +149,18 @@ aws ec2 describe-instances --filters "Name=tag-value,Values=ctfd-autoscaling-gro
 Golang 
 
 ```bash
-wget https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz
-rm go1.14.2.linux-amd64.tar.gz
+wget https://dl.google.com/go/go1.14.3.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.14.3.linux-amd64.tar.gz
+rm go1.14.3.linux-amd64.tar.gz
 ```
 
 Terraform
 
 ```bash
-wget https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
-unzip terraform_0.12.24_linux_amd64.zip
+wget https://releases.hashicorp.com/terraform/0.13.04/terraform_0.13.04_linux_amd64.zip
+unzip terraform_0.13.04_linux_amd64.zip
 sudo mv terraform /usr/local/bin/
-rm terraform_0.12.24_linux_amd64.zip
+rm terraform_0.13.04_linux_amd64.zip
 ```
 
 ### Run tests
