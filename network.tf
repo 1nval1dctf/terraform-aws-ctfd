@@ -15,10 +15,11 @@ data "aws_availability_zones" "available" {}
 module "subnets" {
   source             = "cloudposse/dynamic-subnets/aws"
   version            = "0.30.0"
-  availability_zones = data.aws_availability_zones.available.names
+  availability_zones = [data.aws_availability_zones.available.names[0],data.aws_availability_zones.available.names[1]]
   vpc_id             = module.vpc.vpc_id
   igw_id             = module.vpc.igw_id
   cidr_block         = module.vpc.vpc_cidr_block
+  max_subnet_count   = 2
 }
 
 # Create a security group for instances that require outbound internet access.

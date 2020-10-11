@@ -8,6 +8,7 @@ packages:
  - python3-pip
  - nginx
  - unzip
+ - curl
 
 bootcmd:
  - [ mkdir, -p, ${SCRIPTS_DIR} ]

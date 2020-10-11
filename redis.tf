@@ -9,7 +9,7 @@ resource "aws_elasticache_replication_group" "default" {
 
   node_type            = var.elasticache_cluster_instance_type
   port                 = var.elasticache_cluster_port
-  parameter_group_name = "default.redis5.0"
+  parameter_group_name = "default.redis6.x"
 
   subnet_group_name          = aws_elasticache_subnet_group.default.name
   automatic_failover_enabled = true

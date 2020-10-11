@@ -1,9 +1,9 @@
-data "aws_ami" "ubuntu-1804" {
+data "aws_ami" "ubuntu-2004" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
   owners = ["099720109477"] # Canonical
 }
@@ -122,7 +122,7 @@ resource "aws_iam_role_policy" "asg" {
 # Create a new EC2 launch configuration to be used with the autoscaling group.
 resource "aws_launch_configuration" "lc" {
   name_prefix                 = var.launch_configuration_name_prefix
-  image_id                    = data.aws_ami.ubuntu-1804.id
+  image_id                    = data.aws_ami.ubuntu-2004.id
   instance_type               = var.asg_instance_type
   user_data_base64            = data.template_cloudinit_config.config.rendered
   associate_public_ip_address = true
