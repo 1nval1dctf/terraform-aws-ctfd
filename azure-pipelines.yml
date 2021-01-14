@@ -6,11 +6,12 @@ pool:
 
 steps:
 - script: |
+    sudo apt install -y jq
     # Download and unzip Terraform
-    wget https://releases.hashicorp.com/terraform/0.12.24/terraform_0.12.24_linux_amd64.zip
-    unzip terraform_0.12.24_linux_amd64.zip
-    # Move Terraform to a folder which is in $PATH
-    sudo mv terraform /usr/local/bin/
+    LATEST_URL=$(curl https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].builds[].url | select(.|test("alpha|beta|rc")|not) | select(.|contains("linux_amd64"))' | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n | tail -1)
+    curl ${LATEST_URL} > /tmp/terraform.zip
+    # Unzip and move Terraform to a folder which is in $PATH
+    (cd /tmp && unzip /tmp/terraform.zip && chmod +x /tmp/terraform && sudo mv /tmp/terraform /usr/local/bin/)
   displayName: Install Terraform
 
 - script: |
