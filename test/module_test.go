@@ -45,8 +45,7 @@ func Test(t *testing.T) {
 
 		// AWS
 		awsRegion := terraformOptions.Vars["aws_region"].(string)
-		awsAvailabilityZones := terraform.OutputList(t, terraformOptions, "aws_availability_zones") 
-	
+		
 		vpcId := terraform.Output(t, terraformOptions, "vpc_id")
 		vpc := aws.GetVpcById(t, vpcId, awsRegion)
 		require.Equal(t, vpc.Id, vpcId)
@@ -54,11 +53,12 @@ func Test(t *testing.T) {
 		// Subnets
 		subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
 		//dynamic_subnets should create 1 private and 1 public subnet for each availability zone.
-		require.Equal(t, len(awsAvailabilityZones) * 2, len(subnets))
+		// now changed to limit to 2 availability zones so 2 x (1 private, 1 public)
+		require.Equal(t, 2 * 2, len(subnets))
 
 		// public subnet
 		publicSubnetIds := terraform.OutputList(t, terraformOptions, "public_subnet_ids")
-		require.Equal(t, len(awsAvailabilityZones), len(publicSubnetIds))
+		require.Equal(t, 2, len(publicSubnetIds))
 		for _, subnetId := range publicSubnetIds {
 			// Verify if the network that is supposed to be public is really public
 			assert.True(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
@@ -66,7 +66,7 @@ func Test(t *testing.T) {
 
 		// private subnet
 		privateSubnetIds := terraform.OutputList(t, terraformOptions, "private_subnet_ids")
-		require.Equal(t, len(awsAvailabilityZones), len(privateSubnetIds))
+		require.Equal(t, 2, len(privateSubnetIds))
 		for _, subnetId := range privateSubnetIds {
 			// Verify if the network that is supposed to be private is really private
 			assert.False(t, aws.IsPublicSubnet(t, subnetId, awsRegion))

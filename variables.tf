@@ -194,7 +194,7 @@ variable "ctfd_dir" {
 }
 
 variable "allowed_cidr_blocks" {
-  type        = list
+  type        = list(any)
   description = "Cidr blocks allowed to hit the frontend (ALB)"
   default     = ["0.0.0.0/0"]
 }
