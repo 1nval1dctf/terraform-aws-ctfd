@@ -17,7 +17,7 @@ data "template_file" "db_check" {
   vars = {
     DATABASE_HOST = aws_rds_cluster.ctfdb.endpoint
     DATABASE_NAME = var.db_name
-    DATABASE_PORT = aws_rds_cluster.ctfdb.port
+    DATABASE_PORT = var.db_port
   }
 }
 
@@ -25,7 +25,7 @@ data "template_file" "db_upgrade" {
   template = file("${path.module}/templates/db_upgrade.sh.tpl")
 
   vars = {
-    DATABASE_URL = "mysql+pymysql://${var.db_user}:${random_password.password.result}@${aws_rds_cluster.ctfdb.endpoint}:${aws_rds_cluster.ctfdb.port}/${var.db_name}"
+    DATABASE_URL = "mysql+pymysql://${var.db_user}:${random_password.password.result}@${aws_rds_cluster.ctfdb.endpoint}:${var.db_port}/${var.db_name}"
     CTFD_DIR     = var.ctfd_dir
   }
 }
@@ -54,7 +54,7 @@ data "template_file" "gunicorn" {
   template = file("${path.module}/templates/gunicorn.sh.tpl")
 
   vars = {
-    DATABASE_URL       = "mysql+pymysql://${var.db_user}:${random_password.password.result}@${aws_rds_cluster.ctfdb.endpoint}:${aws_rds_cluster.ctfdb.port}/${var.db_name}"
+    DATABASE_URL       = "mysql+pymysql://${var.db_user}:${random_password.password.result}@${aws_rds_cluster.ctfdb.endpoint}:${var.db_port}/${var.db_name}"
     SECRET_KEY         = random_password.ctfd_secret_key.result
     REDIS_URL          = "redis://${aws_elasticache_replication_group.default.primary_endpoint_address}:${var.elasticache_cluster_port}"
     WORKERS            = var.workers
@@ -68,13 +68,25 @@ data "template_file" "gunicorn" {
   }
 }
 
+data "template_file" "cloudwatch_agent" {
+  template = file("${path.module}/templates/cloudwatch_agent.json.tpl")
+
+  vars = {
+    ACCESS_LOG = var.access_log
+    ERROR_LOG  = var.error_log
+  }
+}
+
+
 data "template_file" "cloud-config" {
   template = file("${path.module}/templates/cloud-config.tpl")
 
   vars = {
     GUNICORN         = base64encode(data.template_file.gunicorn.rendered)
+    CLOUDWATCH_AGENT = base64encode(data.template_file.cloudwatch_agent.rendered)
     LOG_DIR          = var.log_dir
     SCRIPTS_DIR      = var.scripts_dir
+    CTFD_REPO        = var.ctfd_repo
     CTFD_DIR         = var.ctfd_dir
     CTFD_OVERLAY     = "${aws_s3_bucket.challenge_bucket.id}/${aws_s3_bucket_object.ctfd_overlay.id}"
     DB_CHECK         = base64encode(data.template_file.db_check.rendered)

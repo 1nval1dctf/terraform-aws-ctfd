@@ -39,6 +39,9 @@ write_files:
     content: ${DB_UPGRADE}
     path: ${SCRIPTS_DIR}/db_upgrade.sh
     permissions: '0755'
+-   encoding: b64
+    content: ${CLOUDWATCH_AGENT}
+    path: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
 
 runcmd:
  # stop nginx while we set up a few things
@@ -49,13 +52,14 @@ runcmd:
  - [ ./aws/install ]
  - [ rm, -rf, aws ]
  - [ rm, awscliv2.zip ]
- # Install awslogs
- - [ pip3, install, awslogs ]
+ # Install cloudwatch agent
+ - [ curl, "--location", "https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb", -o, "amazon-cloudwatch-agent.deb" ]
+ - [ dpkg, -i, -E, "amazon-cloudwatch-agent.deb" ]
  # Setup git
  - [ git, config, --system, user.name, "cloud-init" ]
  - [ git, config, --system, user.email, "cloud-init@gitlab.com" ]
  # Get ctfd
- - [ git, clone, "-b", "${CTFD_VERSION}", "--depth", "1", "https://github.com/CTFd/CTFd.git", "${CTFD_DIR}" ]
+ - [ git, clone, "-b", "${CTFD_VERSION}", "--depth", "1", "${CTFD_REPO}", "${CTFD_DIR}" ]
  # Extract the CTFd overlay on top of the checkout
  - [ aws, s3, cp, "s3://${CTFD_OVERLAY}", "ctfd_overlay.tar.gz" ]
  - [ tar, -xzf, "ctfd_overlay.tar.gz", -C, "${CTFD_DIR}" ]
@@ -80,6 +84,8 @@ runcmd:
  - [ systemctl, daemon-reload ]
  - [ systemctl, start, gunicorn.socket ]
  - [ systemctl, enable, gunicorn.socket ]
+ # Setup cloudwatch metrics
+ - [ /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl, -a, fetch-config, -m, ec2, -c, file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json, -s ]
  # This will trigger CTFd to start up
  - [ sudo, -u, ${SERVICE_USER}, curl, --unix-socket, /run/gunicorn.sock, http ]
  # start nginx again now that we are ready to serve CTFd

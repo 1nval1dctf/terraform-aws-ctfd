@@ -5,6 +5,7 @@ data "aws_ami" "ubuntu-2004" {
     name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
+
   owners = ["099720109477"] # Canonical
 }
 
@@ -82,6 +83,22 @@ data "aws_iam_policy_document" "asg" {
       "*"
     ]
   }
+
+  statement {
+    actions = [
+      "ec2:DescribeTags",
+      "cloudwatch:PutMetricData",
+      "logs:PutLogEvents",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogStreams",
+      "logs:DescribeLogGroup"
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
 }
 resource "aws_iam_role" "asg" {
 
@@ -121,17 +138,29 @@ resource "aws_iam_role_policy" "asg" {
 
 # Create a new EC2 launch configuration to be used with the autoscaling group.
 resource "aws_launch_configuration" "lc" {
-  name_prefix                 = var.launch_configuration_name_prefix
-  image_id                    = data.aws_ami.ubuntu-2004.id
-  instance_type               = var.asg_instance_type
-  user_data_base64            = data.template_cloudinit_config.config.rendered
+  name_prefix      = var.launch_configuration_name_prefix
+  image_id         = data.aws_ami.ubuntu-2004.id
+  instance_type    = var.asg_instance_type
+  user_data_base64 = data.template_cloudinit_config.config.rendered
+  #tfsec:ignore:AWS012
   associate_public_ip_address = true
   security_groups             = [aws_security_group.asg_outboud.id, aws_security_group.outbound.id, aws_security_group.asg.id]
   iam_instance_profile        = aws_iam_instance_profile.asg.name
+  ebs_optimized               = true
 
   lifecycle {
     # do this because we use aws_launch_configuration with autoscaling group
     create_before_destroy = true
+  }
+
+  root_block_device {
+    encrypted = true
+  }
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
+    http_tokens                 = "required"
   }
 }
 

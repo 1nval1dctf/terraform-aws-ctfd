@@ -13,4 +13,6 @@ module "test" {
   workers                           = 5
   worker_connections                = 5000
   ctfd_version                      = "master"
+  db_engine_mode                    = "serverless"
+  db_skip_final_snapshot            = true
 }

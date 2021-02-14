@@ -39,7 +39,7 @@ output "rds_id" {
 }
 
 output "rds_port" {
-  value       = aws_rds_cluster.ctfdb.port
+  value       = var.db_port
   description = "Port for RDS"
 }
 

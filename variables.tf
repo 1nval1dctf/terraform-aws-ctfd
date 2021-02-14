@@ -16,7 +16,6 @@ variable "force_destroy_challenge_bucket" {
   description = "Whether the S3 bucket containing the CTFD challenge data should be force destroyed"
 }
 
-#  configuration
 variable "elasticache_cluster_id" {
   type        = string
   description = "Id to assign the new ElastiCache cluster"
@@ -32,7 +31,7 @@ variable "elasticache_cluster_instances" {
 variable "elasticache_cluster_instance_type" {
   type        = string
   description = "Instance type for instance in ElastiCache cluster"
-  default     = "cache.m5.large"
+  default     = "cache.r6g.large"
 }
 
 variable "elasticache_cluster_port" {
@@ -44,7 +43,7 @@ variable "elasticache_cluster_port" {
 # RDS configuration
 variable "db_cluster_instances" {
   type        = number
-  description = "Number of instances to create in the RDS cluster"
+  description = "Number of instances to create in the RDS cluster. Only used if db_engine_mode set to `provisioned`"
   default     = 1
 }
 
@@ -56,7 +55,7 @@ variable "db_cluster_name" {
 
 variable "db_cluster_instance_type" {
   type        = string
-  description = "Type of instances to create in the RDS cluster"
+  description = "Type of instances to create in the RDS cluster. Only used if db_engine_mode set to `provisioned`"
   default     = "db.r5.large"
 }
 
@@ -66,10 +65,16 @@ variable "db_engine" {
   default     = "aurora-mysql"
 }
 
+variable "db_engine_mode" {
+  type        = string
+  description = "Engine mode the RDS cluster, can be `provisioned` or `serverless`"
+  default     = "serverless"
+}
+
 variable "db_engine_version" {
   type        = string
   description = "Engine version for the RDS cluster"
-  default     = "5.7.mysql_aurora.2.07.2"
+  default     = "5.7.mysql_aurora.2.07.1"
 }
 
 variable "db_port" {
@@ -94,6 +99,24 @@ variable "db_deletion_protection" {
   type        = bool
   description = "If true database will not be able to be deleted without manual intervention"
   default     = true
+}
+
+variable "db_skip_final_snapshot" {
+  type        = bool
+  description = "If true database will not be snapshoted before deletion."
+  default     = false
+}
+
+variable "db_serverless_min_capacity" {
+  type        = number
+  description = "Minimum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`"
+  default     = 1
+}
+
+variable "db_serverless_max_capacity" {
+  type        = number
+  description = "Maximum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`"
+  default     = 128
 }
 
 # Frontend Auto Scaling Group Configuration
@@ -170,6 +193,12 @@ variable "https_certificate_arn" {
   default     = ""
 }
 
+variable "ctfd_repo" {
+  type        = string
+  description = "Git repository to clone CTFd from"
+  default     = "https://github.com/CTFd/CTFd.git"
+}
+
 variable "ctfd_version" {
   type        = string
   description = "Version of CTFd to deploy"
@@ -197,4 +226,26 @@ variable "allowed_cidr_blocks" {
   type        = list(any)
   description = "Cidr blocks allowed to hit the frontend (ALB)"
   default     = ["0.0.0.0/0"]
+}
+variable "log_bucket" {
+  type        = string
+  description = "Bucket for S3 and ALB log data. Logging disabled if empty"
+  default     = ""
+}
+
+variable "s3_encryption_key_arn" {
+  type        = string
+  description = "Encryption key for use with S3 bucket at-rest encryption. Unencrypted if this is empty."
+  default     = ""
+}
+
+variable "rds_encryption_key_arn" {
+  type        = string
+  description = "Encryption key for use with RDS at-rest encryption. Unencrypted if this is empty."
+  default     = ""
+}
+variable "elasticache_encryption_key_arn" {
+  type        = string
+  description = "Encryption key for use with ElastiCache at-rest encryption. Unencrypted if this is empty."
+  default     = ""
 }

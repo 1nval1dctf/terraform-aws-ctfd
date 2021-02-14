@@ -23,6 +23,14 @@ steps:
     rm tflint.zip
   displayName: Install tflint
 
+- script: |
+    # Download tfsec
+    curl -L https://github.com/tfsec/tfsec/releases/download/v0.38.3/tfsec-linux-amd64 > tfsec
+    chmod +x tfsec
+    # Move tfsec to a folder which is in $PATH
+    sudo mv tfsec /usr/local/bin/
+  displayName: Install tfsec
+
 - script: make validate
   displayName: 'Validate terraform'
 
@@ -43,3 +51,6 @@ steps:
 
 - script: tflint
   displayName: 'Check Terraform configurations with tflint'
+
+- script: tfsec
+  displayName: 'Check Terraform configurations with tfsec'
