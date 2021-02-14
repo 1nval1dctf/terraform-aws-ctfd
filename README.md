@@ -76,23 +76,28 @@ graph TB
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | ctfd_version | Version of CTFd to deploy | string |  | yes |
+| ctfd_repo | Git repository to clone CTFd from | string | `https://github.com/CTFd/CTFd.git` | no |
 | ctfd_overlay | Path to compressed package to unpack over the top of the CTFd repository. Used to package custom themes and plugins. Must be a gzip compressed tarball | string |  | no |
 | app_name | Name of application (ex: `ctfd`) | string | `ctfd` | no |
 | vpc_cidr_block | The top-level CIDR block for the VPC. | string | `10.0.0.0/16` | no |
 | force_destroy_challenge_bucket | Whether the S3 bucket containing the CTFD challenge data should be force destroyed | bool | false | no |
 | elasticache_cluster_id | Id to assign the new ElastiCache cluster | string | `ctfd-cache-cluster` | no |
-| elasticache_cluster_instances | Number of instances in ElastiCache cluster | number | `3` | no |
-| elasticache_cluster_instance_type | Instance type for instance in ElastiCache cluster | string | `cache.m5.large` | no |
+| elasticache_cluster_instances | Number of instances in ElastiCache cluster. Only used if db_engine_mode set to `provisioned` | number | `3` | no |
+| elasticache_cluster_instance_type | Instance type for instance in ElastiCache cluster. Only used if db_engine_mode set to `provisioned` | string | `cache.r6g.large` | no |
 | elasticache_cluster_port | Port to connect to the ElastiCache cluster on | number | `6379` | no |
 | db_cluster_instances | Number of instances to create in the RDS cluster | number | `1` | no |
 | db_cluster_name | Name of the created RDS cluster | string | `ctfd-db-cluster` | no |
 | db_cluster_instance_type | Type of instances to create in the RDS cluster | string | `db.r5.large` | no |
 | db_engine | Engine for the RDS cluster | string | `aurora-mysql` | no |
-| db_engine_version | Engine version for the RDS cluster | string | `5.7.mysql_aurora.2.04.6` | no |
+| db_engine_mode | Engine mode the RDS cluster | string | `serverless` | no |
+| db_engine_version | Engine version for the RDS cluster | string | `5.7.mysql_aurora.2.07.1` | no |
 | db_port | Port to connect to the RDS cluster on | number | `3306` | no |
 | db_user | Username for the RDS database | string | `ctfd` | no |
 | db_name | Name for the database in RDS | string | `ctfd` | no |
 | db_deletion_protection | If true database will not be able to be deleted without manual intervention | bool | `true` | no |
+| db_skip_final_snapshot | If true database will not be snapshoted before deletion. | bool | `false` | no |
+| db_serverless_min_capacity | Minimum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`. | number | 1 | no |
+| db_serverless_max_capacity | Maximum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`. | number | 128 | no |
 | launch_configuration_name_prefix | Name prefix for the launch configuration | string | `ctfd-web-` | no |
 | asg_min_size | Minimum number of instances in frontend auto scaling group | number | `1` | no |
 | asg_max_size | Maximum number of instances in frontend auto scaling group | number | `1` | no |
@@ -108,7 +113,10 @@ graph TB
 | scripts_dir | Where helper scripts are deployed on EC2 instances of CTFd asg | string | `/opt/ctfd-scripts` | no |
 | ctfd_dir | Where CTFd is cloned to on EC2 instances of CTFd asg | string | `/opt/ctfd` | no |
 | allowed_cidr_blocks | Cidr blocks allowed to hit the frontend (ALB) | list(string) | `["0.0.0.0/0"]` | no |
-
+| log_bucket | Bucket for S3 and ALB log data. Logging disabled if empty | string | "" | no |
+| s3_encryption_key_arn | Encryption key for use with S3 bucket at-rest encryption. Unencrypted if this is empty. | string | "" | no |
+| rds_encryption_key_arn | Encryption key for use with RDS at-rest encryption. Unencrypted if this is empty. | string | "" | no |
+| elasticache_encryption_key_arn | Encryption key for use with ElastiCache at-rest encryption. Unencrypted if this is empty. | string | "" | no |
 ## Outputs
 
 | Name | Description |
@@ -141,6 +149,44 @@ You may want to find the frontend instances with the following(assuming default 
 ```bash
 aws ec2 describe-instances --filters "Name=tag-value,Values=ctfd-autoscaling-group" --query "Reservations[*].Instances[*].InstanceId"
 ```
+
+### confirming db connectivity
+
+```bash
+(cd /opt/ctfd && sudo -u www-data ../ctfd-scripts/db_check.sh)
+```
+
+### confirming gunicorn / CTFd
+
+```bash
+curl http://127.0.0.1:8080
+```
+### confirming gunicorn service
+
+```bash
+sudo -u www-data curl --unix-socket /run/gunicorn.sock http
+```
+
+### Manually running CTFd
+
+```bash
+sudo systemctl stop gunicorn.service
+(cd /opt/ctfd && sudo -u www-data ../ctfd-scripts/gunicorn.sh )
+```
+
+### Checking for issues with cloadwatch logging
+
+Confirm the agent is running
+```bash
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
+```
+
+View agent logs
+
+```bash
+cat /opt/aws/amazon-cloudwatch-agent/logs/configuration-validation.log
+```
+
 
 ## Building / Contributing
 

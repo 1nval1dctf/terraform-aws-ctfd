@@ -23,7 +23,7 @@ format_all: format format_examples format_tests
 
 .PHONY : test
 ## Run tests
-test: validate_all format_all
+test: validate_all format_all tfsec
 	cd $(TESTDIR) && go test -v -timeout 30m
 
 .PHONY : init
@@ -37,6 +37,10 @@ format:
 .PHONY : validate
 validate: init
 	AWS_DEFAULT_REGION="us-east-1" terraform validate 
+
+.PHONY : tfsec
+tfset: init 
+	docker run --rm -it -v "$(pwd):/src" liamg/tfsec /src
 
 .PHONY : init_tests
 init_tests:

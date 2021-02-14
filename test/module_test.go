@@ -148,7 +148,7 @@ func Test(t *testing.T) {
 func configureTerraformOptions(t *testing.T, fixtureFolder string) *terraform.Options {
 
 	// Pick a random AWS region to test in. This helps ensure your code works in all regions.
-	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
+	//awsRegion := aws.GetRandomStableRegion(t, nil, nil)
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
@@ -156,7 +156,7 @@ func configureTerraformOptions(t *testing.T, fixtureFolder string) *terraform.Op
 
 		// Variables to pass to our Terraform code using -var options
 		Vars: map[string]interface{}{
-			"aws_region":    awsRegion,
+			"aws_region":    "us-east-1",
 		},
 	}
 

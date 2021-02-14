@@ -1,10 +1,20 @@
 # Create a new application load balancer.
 resource "aws_lb" "lb" {
-  name               = var.app_name
+  name = var.app_name
+  #tfsec:ignore:AWS005
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id, aws_security_group.alb_outboud.id]
   subnets            = module.subnets.public_subnet_ids
+
+  dynamic "access_logs" {
+    for_each = var.log_bucket != "" ? [1] : []
+    content {
+      bucket  = var.log_bucket
+      prefix  = "logs/alb/"
+      enabled = true
+    }
+  }
 }
 
 # Create a new target group for the application load balancer.
@@ -31,7 +41,8 @@ resource "aws_alb_target_group" "group" {
 resource "aws_alb_listener" "listener_http" {
   load_balancer_arn = aws_lb.lb.arn
   port              = "80"
-  protocol          = "HTTP"
+  #tfsec:ignore:AWS004
+  protocol = "HTTP"
   # only if certificate_arm is NOT set
   count = var.https_certificate_arn != "" ? 0 : 1
 
@@ -64,7 +75,7 @@ resource "aws_alb_listener" "listener_https" {
   load_balancer_arn = aws_lb.lb.arn
   port              = "443"
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
   certificate_arn   = var.https_certificate_arn
   # only if certificate_arm is set
   count = var.https_certificate_arn != "" ? 1 : 0

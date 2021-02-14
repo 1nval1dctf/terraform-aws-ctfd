@@ -1,7 +1,7 @@
 # Create a VPC to launch our instances into
 module "vpc" {
   source               = "cloudposse/vpc/aws"
-  version              = "0.18.2"
+  version              = "0.20.4"
   name                 = "${var.app_name}-vpc"
   cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = true
@@ -14,32 +14,33 @@ data "aws_availability_zones" "available" {}
 # creates both private and public subnets
 module "subnets" {
   source             = "cloudposse/dynamic-subnets/aws"
-  version            = "0.34.0"
+  version            = "0.37.6"
   availability_zones = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
   vpc_id             = module.vpc.vpc_id
   igw_id             = module.vpc.igw_id
   cidr_block         = module.vpc.vpc_cidr_block
   max_subnet_count   = 2
 }
-
-# Create a security group for instances that require outbound internet access.
-# todo, remove once new AMI is created and this no longer needs internet access
 resource "aws_security_group" "outbound" {
   name        = "outbound_security_group"
   description = "Allows outbound access"
   vpc_id      = module.vpc.vpc_id
-  # allow all outbound HTTP traffic
+
+  # allow all outbound HTTP traffic, needed for package installation
   egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    #tfsec:ignore:AWS009
     cidr_blocks = ["0.0.0.0/0"]
   }
-  # allow all outbound HTTPS traffic
+
+  # allow all outbound HTTPS traffic, needed for SSM
   egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    #tfsec:ignore:AWS009
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -47,6 +48,7 @@ resource "aws_security_group" "outbound" {
     Name = "outbound_security_group"
   }
 }
+
 
 # Create an application load balancer security group.
 resource "aws_security_group" "alb" {
@@ -56,17 +58,19 @@ resource "aws_security_group" "alb" {
 
   # Inbound HTTP traffic to the load balancer.
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port = 80
+    to_port   = 80
+    protocol  = "tcp"
+    #tfsec:ignore:AWS008
     cidr_blocks = var.allowed_cidr_blocks
   }
 
   # Inbound HTTPS traffic to the load balancer.
   ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    from_port = 443
+    to_port   = 443
+    protocol  = "tcp"
+    #tfsec:ignore:AWS008
     cidr_blocks = var.allowed_cidr_blocks
   }
 
@@ -127,7 +131,7 @@ resource "aws_security_group" "rds" {
     security_groups = [aws_security_group.asg.id]
   }
 
-  # allow outbound traffic to asg
+  # allow outbound traffic to the auto scaling group security group
   egress {
     from_port       = 1024
     to_port         = 65535
@@ -154,7 +158,7 @@ resource "aws_security_group" "elasticache" {
     security_groups = [aws_security_group.asg.id]
   }
 
-  # allow outbound traffic to asg
+  # allow outbound traffic to the auto scaling group security group
   egress {
     from_port       = 1024
     to_port         = 65535
@@ -191,18 +195,11 @@ resource "aws_security_group" "asg_outboud" {
 
   # allow outbound traffic for ntp
   egress {
-    from_port   = 123
-    to_port     = 123
-    protocol    = "udp"
+    from_port = 123
+    to_port   = 123
+    protocol  = "udp"
+    #tfsec:ignore:AWS009
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # allow outbound traffic to LoadBalancer
-  egress {
-    from_port       = 1024
-    to_port         = 65535
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
   }
 
   tags = {
