@@ -117,6 +117,9 @@ graph TB
 | s3_encryption_key_arn | Encryption key for use with S3 bucket at-rest encryption. Unencrypted if this is empty. | string | "" | no |
 | rds_encryption_key_arn | Encryption key for use with RDS at-rest encryption. Unencrypted if this is empty. | string | "" | no |
 | elasticache_encryption_key_arn | Encryption key for use with ElastiCache at-rest encryption. Unencrypted if this is empty. | string | "" | no |
+| create_cdn | Whether to create a cloudfront CDN deployment. | bool | false | no |
+| ctf_domain | Domain to use for the CTFd deployment. Only used if `create_cdn` is `true`. | string | "" | no |
+| ctf_domain_zone_id | zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`. | string | "" | no |
 ## Outputs
 
 | Name | Description |

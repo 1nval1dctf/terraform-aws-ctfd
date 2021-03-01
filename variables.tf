@@ -135,7 +135,7 @@ variable "asg_min_size" {
 variable "asg_max_size" {
   type        = number
   description = "Maximum of instances in frontend auto scaling group"
-  default     = 1
+  default     = 4
 }
 
 variable "asg_instance_type" {
@@ -247,5 +247,21 @@ variable "rds_encryption_key_arn" {
 variable "elasticache_encryption_key_arn" {
   type        = string
   description = "Encryption key for use with ElastiCache at-rest encryption. Unencrypted if this is empty."
+  default     = ""
+}
+
+variable "create_cdn" {
+  type        = bool
+  default     = false
+  description = "Whether to create a cloudfront CDN deployment."
+}
+
+variable "ctf_domain" {
+  description = "Domain to use for the CTFd deployment. Only used if `create_cdn` is `true`"
+  default     = ""
+}
+
+variable "ctf_domain_zone_id" {
+  description = "zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`"
   default     = ""
 }
