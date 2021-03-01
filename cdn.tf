@@ -55,6 +55,7 @@ module "cdn" {
     # dont cache user settings etc.
     merge(local.nocache_behavior, map("path_pattern", "settings")),
     merge(local.nocache_behavior, map("path_pattern", "logout")),
+    merge(local.nocache_behavior, map("path_pattern", "login")),
     # dont cache challenges and scoreboard.
     merge(local.nocache_behavior, map("path_pattern", "challenges")),
     merge(local.nocache_behavior, map("path_pattern", "scoreboard")),
