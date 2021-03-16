@@ -36,15 +36,15 @@ resource "aws_alb_target_group" "group" {
 }
 
 # HTTP request 
-# Prefer HTTPS if certificate_arm set
+# Prefer HTTPS if certificate_arm set and we dont have cloudfront
 # In that case http requests will redirect to https
 resource "aws_alb_listener" "listener_http" {
   load_balancer_arn = aws_lb.lb.arn
   port              = "80"
   #tfsec:ignore:AWS004
   protocol = "HTTP"
-  # only if certificate_arm is NOT set
-  count = var.https_certificate_arn != "" ? 0 : 1
+  # only if https_certificate_arn is NOT set OR we are creating a CDN
+  count = (var.https_certificate_arn != "" || var.create_cdn == true) ? 1 : 0
 
   default_action {
     target_group_arn = aws_alb_target_group.group.arn
@@ -57,8 +57,8 @@ resource "aws_alb_listener" "listener_http_forward" {
   load_balancer_arn = aws_lb.lb.arn
   port              = "80"
   protocol          = "HTTP"
-  # only if certificate_arm is set
-  count = var.https_certificate_arn != "" ? 1 : 0
+  # only if https_certificate_arn is set and we are not creating a CDN
+  count = (var.https_certificate_arn != "" && var.create_cdn != true) ? 1 : 0
 
   default_action {
     type = "redirect"
@@ -77,8 +77,8 @@ resource "aws_alb_listener" "listener_https" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
   certificate_arn   = var.https_certificate_arn
-  # only if certificate_arm is set
-  count = var.https_certificate_arn != "" ? 1 : 0
+  # only if https_certificate_arn is set and we are not creating a CDN
+  count = (var.https_certificate_arn != "" && var.create_cdn != true) ? 1 : 0
 
   default_action {
     target_group_arn = aws_alb_target_group.group.arn
