@@ -24,7 +24,7 @@ module "cdn" {
   origin_domain_name              = aws_lb.lb.dns_name
   origin_protocol_policy          = "http-only"
   viewer_protocol_policy          = "redirect-to-https"
-  parent_zone_name                = var.ctf_domain_zone_id
+  parent_zone_id                  = var.ctf_domain_zone_id
   default_root_object             = "/"
   acm_certificate_arn             = var.https_certificate_arn
   forward_cookies                 = "all"
