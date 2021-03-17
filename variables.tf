@@ -265,3 +265,9 @@ variable "ctf_domain_zone_id" {
   description = "zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`"
   default     = ""
 }
+
+variable "upload_filesize_limit" {
+  type        = string
+  description = "Nginx setting `client_max_bosy_size` which limits the max size of any handouts you can upload."
+  default     = "100M"
+}

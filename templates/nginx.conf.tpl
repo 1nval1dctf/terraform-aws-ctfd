@@ -2,6 +2,7 @@ proxy_cache_path /var/nginx levels=1:2 keys_zone=ctfd_cache:10m max_size=10g ina
 
 server {
   listen 80;
+  client_max_body_size ${UPLOAD_FILESIZE_LIMIT};
   proxy_cache ctfd_cache;
 
   # Static serving of theme files

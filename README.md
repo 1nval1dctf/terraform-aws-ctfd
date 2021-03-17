@@ -120,6 +120,7 @@ graph TB
 | create_cdn | Whether to create a cloudfront CDN deployment. | bool | false | no |
 | ctf_domain | Domain to use for the CTFd deployment. Only used if `create_cdn` is `true`. | string | "" | no |
 | ctf_domain_zone_id | zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`. | string | "" | no |
+| upload_filesize_limit | Nginx setting `client_max_bosy_size` which limits the max size of any handouts you can upload.. | string | "100M" | no |
 ## Outputs
 
 | Name | Description |

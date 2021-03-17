@@ -94,7 +94,7 @@ data "template_file" "cloud-config" {
     GUNICORN_SERVICE = base64encode(data.template_file.gunicorn_service.rendered)
     GUNICORN_SOCKET  = base64encode(templatefile("${path.module}/templates/gunicorn.socket.tpl", { SERVICE_USER = local.service_user }))
     GUNICORN_CONF    = base64encode(data.template_file.gunicorn_conf.rendered)
-    NGINX_CONF       = base64encode(templatefile("${path.module}/templates/nginx.conf.tpl", { CTFD_DIR = var.ctfd_dir }))
+    NGINX_CONF       = base64encode(templatefile("${path.module}/templates/nginx.conf.tpl", { CTFD_DIR = var.ctfd_dir, UPLOAD_FILESIZE_LIMIT = var.upload_filesize_limit }))
     CTFD_VERSION     = var.ctfd_version
     SERVICE_USER     = local.service_user
     SERVICE_GROUP    = local.service_group
