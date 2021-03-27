@@ -129,7 +129,7 @@ func Test(t *testing.T) {
 		albDnsName := terraform.Output(t, terraformOptions, "lb_dns_name")
 
 		// It can take a minute or so for the Instance to boot up, so retry a few times
-		maxRetries := 30
+		maxRetries := 60
 		timeBetweenRetries := 5 * time.Second
 
 		// Setup a TLS configuration to submit with the helper, a blank struct is acceptable

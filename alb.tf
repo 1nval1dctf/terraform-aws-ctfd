@@ -44,7 +44,7 @@ resource "aws_alb_listener" "listener_http" {
   #tfsec:ignore:AWS004
   protocol = "HTTP"
   # only if https_certificate_arn is NOT set OR we are creating a CDN
-  count = (var.https_certificate_arn != "" || var.create_cdn == true) ? 1 : 0
+  count = (var.https_certificate_arn == "" || var.create_cdn == true) ? 1 : 0
 
   default_action {
     target_group_arn = aws_alb_target_group.group.arn

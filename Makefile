@@ -28,7 +28,7 @@ test: validate_all format_all tfsec
 
 .PHONY : init
 init:
-	terraform init -input=false -backend=false
+	terraform init -upgrade -input=false -backend=false
 
 .PHONY : format
 format:
@@ -44,7 +44,7 @@ tfset: init
 
 .PHONY : init_tests
 init_tests:
-	pushd test/fixture && terraform init -input=false -backend=false && popd
+	pushd test/fixture && terraform init -upgrade -input=false -backend=false && popd
 
 .PHONY : format_tests
 format_tests:
@@ -56,7 +56,7 @@ validate_tests: init_tests
 
 .PHONY : init_examples
 init_examples:
-	pushd examples/simple && terraform init -input=false -backend=false && popd
+	pushd examples/simple && terraform init -upgrade -input=false -backend=false && popd
 
 .PHONY : format_examples
 format_examples:

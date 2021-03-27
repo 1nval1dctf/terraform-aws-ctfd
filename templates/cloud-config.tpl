@@ -9,6 +9,9 @@ packages:
  - nginx
  - unzip
  - curl
+ - libxml2-dev
+ - libxslt1-dev
+ - python3-lxml
 
 bootcmd:
  - [ mkdir, -p, ${SCRIPTS_DIR} ]
@@ -48,7 +51,7 @@ runcmd:
  - [ systemctl, stop, nginx ]
  # Install aws cli
  - [ curl, "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip", -o, "awscliv2.zip" ]
- - [ unzip, awscliv2.zip ]
+ - [ unzip, -qq, awscliv2.zip ]
  - [ ./aws/install ]
  - [ rm, -rf, aws ]
  - [ rm, awscliv2.zip ]

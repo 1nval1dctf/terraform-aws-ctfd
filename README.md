@@ -171,6 +171,13 @@ curl http://127.0.0.1:8080
 sudo -u www-data curl --unix-socket /run/gunicorn.sock http
 ```
 
+### Check cloud-init logs
+
+Look for any errors in the EC2 setup
+```bash
+cat /var/log/cloud-init-output.log
+```
+
 ### Manually running CTFd
 
 ```bash

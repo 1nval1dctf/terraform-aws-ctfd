@@ -1,3 +1,13 @@
+terraform {
+  required_version = ">= 0.14.9"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.34"
+    }
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -12,5 +22,5 @@ module "ctfd" {
   asg_instance_type                 = "t2.micro"
   workers                           = 3
   worker_connections                = 3000
-  ctfd_version                      = "2.3.3"
+  ctfd_version                      = "3.2.1"
 }
