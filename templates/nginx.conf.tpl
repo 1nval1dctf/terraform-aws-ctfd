@@ -5,13 +5,14 @@ server {
   client_max_body_size ${UPLOAD_FILESIZE_LIMIT};
   proxy_cache ctfd_cache;
 
-  # Static serving of theme files
-  # We don't know the theme name so match anything within a directory called static
-  location ~* ^.+\/(static)\/.+$ {
-    root ${CTFD_DIR}/CTFd;
+  # Static serving of theme files, falling back to CTFd
+  root ${CTFD_DIR}/CTFd;
+  location / {
+      try_files $uri $uri @backend;
   }
 
-  location / {
+
+  location @backend {
     include proxy_params;
     proxy_headers_hash_max_size 512;
     proxy_headers_hash_bucket_size 128;

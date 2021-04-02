@@ -21,7 +21,7 @@ module "test" {
   asg_min_size                   = 1
   workers                        = 5
   worker_connections             = 5000
-  ctfd_version                   = "3.2.1"
+  ctfd_version                   = "3.3.0"
   db_engine_mode                 = "serverless"
   db_skip_final_snapshot         = true
 }
