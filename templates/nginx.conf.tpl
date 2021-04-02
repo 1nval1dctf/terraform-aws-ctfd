@@ -7,10 +7,15 @@ server {
 
   # Static serving of theme files, falling back to CTFd
   root ${CTFD_DIR}/CTFd;
-  location / {
+  # We don't know the theme name so match anything within a directory called static
+  location ~* ^.+\/(static)\/.+$ {
       try_files $uri $uri @backend;
   }
 
+  # everything else we 'forward' to CTFd
+  location / {
+      try_files /dev/null @backend;
+  }
 
   location @backend {
     include proxy_params;
