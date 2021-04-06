@@ -9,8 +9,7 @@ locals {
     compress                    = true
     target_origin_id            = var.app_name
     forward_cookies             = "none"
-    forward_header_values       = []   # will cache everything
-    forward_query_string        = true # 
+    forward_header_values       = [] # will cache everything
     lambda_function_association = []
   }
 }
@@ -41,9 +40,9 @@ module "cdn" {
   viewer_minimum_protocol_version = "TLSv1.2_2019"
 
   ordered_cache = [
-    # cache themes
-    merge(local.cache_behavior, map("path_pattern", "themes/*")),
-    # cache files
-    merge(local.cache_behavior, map("path_pattern", "files/*")),
+    # cache themes, dont forward query params
+    merge(local.cache_behavior, map("path_pattern", "themes/*"), map("forward_query_string", false)),
+    # cache files, do forward query params (needed for protected file requests)
+    merge(local.cache_behavior, map("path_pattern", "files/*"), map("forward_query_string", true)),
   ]
 }
