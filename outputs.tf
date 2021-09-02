@@ -28,26 +28,6 @@ output "elasticache_cluster_id" {
   description = "Id of the ElastiCache cluster"
 }
 
-output "rds_endpoint_address" {
-  value       = aws_rds_cluster.ctfdb.endpoint
-  description = "Endpoint address for RDS"
-}
-
-output "rds_id" {
-  value       = aws_rds_cluster.ctfdb.id
-  description = "Id of RDS cluster"
-}
-
-output "rds_port" {
-  value       = var.db_port
-  description = "Port for RDS"
-}
-
-output "rds_password" {
-  value       = random_password.password.result
-  description = "Generated password for the database"
-}
-
 output "lb_dns_name" {
   value       = aws_lb.lb.dns_name
   description = "DNS name for the Load Balancer"

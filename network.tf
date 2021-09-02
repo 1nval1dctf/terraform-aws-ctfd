@@ -1,7 +1,7 @@
 # Create a VPC to launch our instances into
 module "vpc" {
   source               = "cloudposse/vpc/aws"
-  version              = "0.20.4"
+  version              = "0.25.0"
   name                 = "${var.app_name}-vpc"
   cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = true
@@ -14,7 +14,7 @@ data "aws_availability_zones" "available" {}
 # creates both private and public subnets
 module "subnets" {
   source             = "cloudposse/dynamic-subnets/aws"
-  version            = "0.37.6"
+  version            = "0.39.4"
   availability_zones = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
   vpc_id             = module.vpc.vpc_id
   igw_id             = module.vpc.igw_id

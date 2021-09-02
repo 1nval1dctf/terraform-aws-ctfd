@@ -154,6 +154,22 @@ You may want to find the frontend instances with the following(assuming default 
 aws ec2 describe-instances --filters "Name=tag-value,Values=ctfd-autoscaling-group" --query "Reservations[*].Instances[*].InstanceId"
 ```
 
+### Retrieve db credential
+```bash
+creds=$(aws secretsmanager get-secret-value --secret-id ctfdb-credential | jq -r .SecretString)
+```
+
+**To retrieve the password specifically:**
+```bash
+echo ${creds} | jq -r .password
+```
+
+### Delete db credential
+Run this before doing a destroy:
+```bash
+aws secretsmanager delete-secret --secret-id ctfdb-credential --force-delete-without-recovery
+```
+
 ### confirming db connectivity
 
 ```bash
@@ -203,7 +219,7 @@ cat /opt/aws/amazon-cloudwatch-agent/logs/configuration-validation.log
 
 ### Install prerequisites
 
-Golang 
+Golang
 
 ```bash
 wget https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz

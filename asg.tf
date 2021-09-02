@@ -148,6 +148,7 @@ resource "aws_iam_role_policy" "asg" {
 
 module "autoscale_group" {
   source                                 = "cloudposse/ec2-autoscale-group/aws"
+  version                                = "0.28.1"
   name                                   = var.launch_configuration_name_prefix
   image_id                               = length(regexall("[g]+", var.asg_instance_type)) > 0 ? data.aws_ami.ubuntu-2004-arm.id : data.aws_ami.ubuntu-2004.id
   instance_type                          = var.asg_instance_type

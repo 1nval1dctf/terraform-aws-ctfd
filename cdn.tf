@@ -11,12 +11,14 @@ locals {
     forward_cookies             = "none"
     forward_header_values       = [] # will cache everything
     lambda_function_association = []
+    cache_policy_id             = ""
+    origin_request_policy_id    = ""
   }
 }
 
 module "cdn" {
   source                          = "cloudposse/cloudfront-cdn/aws"
-  version                         = "0.15.3"
+  version                         = "0.21.3"
   count                           = var.create_cdn ? 1 : 0
   attributes                      = [var.app_name]
   aliases                         = var.ctf_domain != "" ? [var.ctf_domain] : []
@@ -41,8 +43,8 @@ module "cdn" {
 
   ordered_cache = [
     # cache themes, dont forward query params
-    merge(local.cache_behavior, map("path_pattern", "themes/*"), map("forward_query_string", false)),
+    merge(local.cache_behavior, tomap({ "path_pattern" = "themes/*" }), tomap({ "forward_query_string" = false })),
     # cache files, do forward query params (needed for protected file requests)
-    merge(local.cache_behavior, map("path_pattern", "files/*"), map("forward_query_string", true)),
+    merge(local.cache_behavior, tomap({ "path_pattern" = "files/*" }), tomap({ "forward_query_string" = true })),
   ]
 }

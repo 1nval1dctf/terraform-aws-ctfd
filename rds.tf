@@ -1,16 +1,14 @@
-# Create a subnet group with all of our RDS subnets. The group will be applied to the database cluster.  
+# Create a subnet group with all of our RDS subnets. The group will be applied to the database cluster.
 resource "aws_db_subnet_group" "default" {
   name        = "${var.db_cluster_name}-db-subnet"
   subnet_ids  = module.subnets.private_subnet_ids
   description = "${var.db_cluster_name} RDS subnet group"
 }
 
-
 resource "random_password" "password" {
-  length  = 16
+  length  = 32
   special = false
 }
-
 
 resource "aws_rds_cluster" "ctfdb" {
   cluster_identifier              = var.db_cluster_name
@@ -43,7 +41,6 @@ resource "aws_rds_cluster" "ctfdb" {
   }
 }
 
-
 resource "aws_rds_cluster_instance" "cluster_instances" {
   count              = var.db_engine_mode == "provisioned" ? var.db_cluster_instances : 0
   identifier         = "${var.db_cluster_name}-${count.index}"
@@ -52,4 +49,22 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   engine_version     = var.db_engine_version
   engine             = var.db_engine
   apply_immediately  = true
+}
+
+resource "aws_secretsmanager_secret" "rds_credential" {
+  name = "ctfdb-credential"
+}
+
+resource "aws_secretsmanager_secret_version" "rds_credential" {
+  secret_id     = aws_secretsmanager_secret.rds_credential.id
+  secret_string = <<EOF
+{
+  "username": "${aws_rds_cluster.ctfdb.master_username}",
+  "password": "${random_password.password.result}",
+  "engine": "${aws_rds_cluster.ctfdb.engine}",
+  "host": "${aws_rds_cluster.ctfdb.endpoint}",
+  "port": ${aws_rds_cluster.ctfdb.port},
+  "dbClusterIdentifier": "${aws_rds_cluster.ctfdb.cluster_identifier}"
+}
+EOF
 }
