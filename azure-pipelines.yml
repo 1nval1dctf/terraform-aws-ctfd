@@ -37,6 +37,12 @@ steps:
 - script: make format
   displayName: 'Ensure terraform format'
 
+- script: make validate_modules
+  displayName: 'Validate modules'
+
+- script: make format_modules
+  displayName: 'Ensure terraform format for modules'
+
 - script: make validate_tests
   displayName: 'Validate tests'
 

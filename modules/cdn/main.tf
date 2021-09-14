@@ -1,3 +1,18 @@
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.46"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = "~> 2.1"
+    }
+  }
+}
+
 locals {
   cache_behavior = {
     viewer_protocol_policy      = "redirect-to-https"
@@ -11,16 +26,17 @@ locals {
     forward_cookies             = "none"
     forward_header_values       = [] # will cache everything
     lambda_function_association = []
+    cache_policy_id             = ""
+    origin_request_policy_id    = ""
   }
 }
 
 module "cdn" {
   source                          = "cloudposse/cloudfront-cdn/aws"
-  version                         = "0.15.3"
-  count                           = var.create_cdn ? 1 : 0
+  version                         = "0.20.0"
   attributes                      = [var.app_name]
   aliases                         = var.ctf_domain != "" ? [var.ctf_domain] : []
-  origin_domain_name              = aws_lb.lb.dns_name
+  origin_domain_name              = var.origin_domain_name
   origin_protocol_policy          = "http-only"
   viewer_protocol_policy          = "redirect-to-https"
   parent_zone_id                  = var.ctf_domain_zone_id
@@ -41,8 +57,8 @@ module "cdn" {
 
   ordered_cache = [
     # cache themes, dont forward query params
-    merge(local.cache_behavior, map("path_pattern", "themes/*"), map("forward_query_string", false)),
+    merge(local.cache_behavior, { path_pattern = "themes/*" }, { forward_query_string = false }),
     # cache files, do forward query params (needed for protected file requests)
-    merge(local.cache_behavior, map("path_pattern", "files/*"), map("forward_query_string", true)),
+    merge(local.cache_behavior, { path_pattern = "files/*" }, { forward_query_string = true }),
   ]
 }

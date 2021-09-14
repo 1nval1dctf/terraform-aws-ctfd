@@ -1,6 +1,17 @@
+terraform {
+  required_version = ">= 1.0.0"
+  required_providers {
+
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.46"
+    }
+  }
+}
+
 resource "aws_elasticache_subnet_group" "default" {
   name       = "${var.app_name}-cache-subnet"
-  subnet_ids = module.subnets.private_subnet_ids
+  subnet_ids = var.private_subnet_ids
 }
 
 resource "aws_elasticache_replication_group" "default" {

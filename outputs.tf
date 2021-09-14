@@ -1,59 +1,24 @@
-output "s3_bucket" {
-  value       = aws_s3_bucket.challenge_bucket
-  description = "Challenge bucket arn"
-}
-
-output "vpc_id" {
-  value       = module.vpc.vpc_id
-  description = "Id for the VPC created for CTFd"
-}
-
-output "aws_availability_zones" {
-  value       = data.aws_availability_zones.available.names
-  description = "list of availability zones ctfd was deployed into"
-}
-
-output "private_subnet_ids" {
-  value       = module.subnets.private_subnet_ids
-  description = "List of private subnets that contain backend infrastructure (RDS, ElastiCache, EC2)"
-}
-
-output "public_subnet_ids" {
-  value       = module.subnets.public_subnet_ids
-  description = "List of public subnets that contain frontend infrastructure (ALB)"
-}
-
-output "elasticache_cluster_id" {
-  value       = aws_elasticache_replication_group.default.id
-  description = "Id of the ElastiCache cluster"
-}
-
-output "rds_endpoint_address" {
-  value       = aws_rds_cluster.ctfdb.endpoint
-  description = "Endpoint address for RDS"
-}
-
-output "rds_id" {
-  value       = aws_rds_cluster.ctfdb.id
-  description = "Id of RDS cluster"
-}
-
-output "rds_port" {
-  value       = var.db_port
-  description = "Port for RDS"
-}
-
-output "rds_password" {
-  value       = random_password.password.result
+output "db_password" {
+  value       = module.rds.0.rds_password
   description = "Generated password for the database"
+  sensitive   = true
 }
 
 output "lb_dns_name" {
-  value       = aws_lb.lb.dns_name
+  value       = kubernetes_service.ctfd-web.spec[0].cluster_ip
   description = "DNS name for the Load Balancer"
 }
+output "lb_port" {
+  value       = kubernetes_service.ctfd-web.spec[0].port[0].port
+  description = "Port that CTFd is reachable on"
+}
 
-output "lb_dns_zone_id" {
-  value       = aws_lb.lb.zone_id
-  description = "The canonical hosted zone ID of the Load Balancer"
+output "kubeconfig" {
+  description = "kubectl config file contents for this EKS cluster."
+  value       = module.eks.0.kubeconfig
+}
+
+output "config_map_aws_auth" {
+  description = "A kubernetes configuration to authenticate to this EKS cluster."
+  value       = module.eks.0.config_map_aws_auth
 }
