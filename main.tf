@@ -18,6 +18,7 @@ terraform {
 }
 
 module "vpc" {
+  count    = var.create_eks ? 1 : 0
   source   = "./modules/vpc"
   app_name = var.app_name
 }
@@ -64,6 +65,7 @@ module "elasticache" {
   elasticache_encryption_key_arn    = var.elasticache_encryption_key_arn
 }
 module "eks" {
+  count                     = var.create_eks ? 1 : 0
   source                    = "./modules/eks"
   vpc_id                    = module.vpc.0.vpc_id
   private_subnet_ids        = module.vpc.0.private_subnet_ids
@@ -74,6 +76,7 @@ module "eks" {
 }
 
 module "s3" {
+  count                          = var.create_eks ? 1 : 0
   source                         = "./modules/s3"
   force_destroy_challenge_bucket = var.force_destroy_challenge_bucket
   s3_encryption_key_arn          = var.s3_encryption_key_arn
@@ -81,7 +84,7 @@ module "s3" {
 }
 
 module "cdn" {
-  count                 = var.create_cdn ? 1 : 0
+  count                 = var.create_eks ? var.create_cdn ? 1 : 0 : 0
   source                = "./modules/cdn"
   ctf_domain            = var.ctf_domain
   app_name              = var.app_name
@@ -89,4 +92,10 @@ module "cdn" {
   https_certificate_arn = var.https_certificate_arn
   log_bucket            = module.s3.0.log_bucket_arn
   origin_domain_name    = kubernetes_service.ctfd-web.status.0.load_balancer.0.ingress.0.hostname
+}
+
+module "k8s" {
+  count     = var.k8s_backend ? 1 : 0
+  source    = "./modules/k8s"
+  namespace = local.namespace
 }

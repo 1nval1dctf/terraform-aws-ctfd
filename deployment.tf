@@ -210,6 +210,33 @@ resource "kubernetes_service" "ctfd-web" {
   depends_on = [kubernetes_deployment.ctfd]
 }
 
+resource "kubernetes_ingress" "ctfd-web" {
+  count                  = var.create_eks ? 0 : 1
+  wait_for_load_balancer = true
+  metadata {
+    name      = local.service_name
+    namespace = local.namespace
+    annotations = {
+      "kubernetes.io/ingress.class" = "alb"
+      "alb.ingress.kubernetes.io/scheme" : "internet-facing"
+    }
+  }
+  spec {
+    rule {
+      http {
+        path {
+          path = "/*"
+          backend {
+            service_name = kubernetes_service.ctfd-web.metadata.0.name
+            service_port = 80
+          }
+        }
+      }
+    }
+  }
+  depends_on = [kubernetes_service.ctfd-web]
+}
+
 resource "kubernetes_persistent_volume_claim" "ctfd-logs-claim" {
   metadata {
     name      = "ctfd-logs-claim"

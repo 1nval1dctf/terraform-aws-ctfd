@@ -25,7 +25,7 @@ format_all: format format_examples format_tests format_modules
 .PHONY : test
 ## Run tests
 test: validate_all format_all tfsec
-	cd $(TESTDIR) && go test -v -timeout 30m
+	cd $(TESTDIR) && go test -v -timeout 30m -run TestK3s
 
 .PHONY : init
 init:
@@ -50,6 +50,7 @@ init_tests:
 .PHONY : format_tests
 format_tests:
 	$(call terraform_fmt,'test/fixture')
+	$(call terraform_fmt,'test/k3s_fixture')
 
 .PHONY : validate_tests
 validate_tests: init_tests

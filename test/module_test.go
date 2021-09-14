@@ -23,6 +23,7 @@ func Test(t *testing.T) {
 	fixtureFolder := "./fixture"
 
 	// At the end of the test, clean up any resources that were created
+	
 	defer test_structure.RunTestStage(t, "teardown", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
 		terraform.Destroy(t, terraformOptions)
@@ -145,6 +146,52 @@ func Test(t *testing.T) {
 	})
 }
 
+func TestK3s(t *testing.T) {
+	t.Parallel()
+
+	fixtureFolder := "./k3s_fixture"
+
+	// At the end of the test, clean up any resources that were created	
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
+		terraform.Destroy(t, terraformOptions)
+	})
+
+	// Deploy the example
+	test_structure.RunTestStage(t, "setup", func() {
+		terraformOptions := configureTerraformOptions(t, fixtureFolder)
+
+		// Save the options so later test stages can use them
+		test_structure.SaveTerraformOptions(t, fixtureFolder, terraformOptions)
+
+		// This will init and apply the resources and fail the test if there are any errors
+		terraform.InitAndApply(t, terraformOptions)
+	})
+
+
+	// Check the Frontend
+	test_structure.RunTestStage(t, "validate_frontend", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
+
+		// Frontend
+		ctfdConnectionString := terraform.Output(t, terraformOptions, "ctfd_connection_string")
+
+		maxRetries := 10
+		timeBetweenRetries := 1 * time.Second
+
+		// Setup a TLS configuration to submit with the helper, a blank struct is acceptable
+		tlsConfig := tls.Config{}
+
+		// Specify the text the EC2 Instance will return when we make HTTP requests to it.
+		instanceText := "CTFd"
+	
+		// Verify that we get back a 200 OK that contains instanceText
+		http_helper.HttpGetWithRetryWithCustomValidation(t, ctfdConnectionString, &tlsConfig, maxRetries, timeBetweenRetries, func(statusCode int, body string) bool {
+			return (statusCode == 200 || statusCode == 302) && strings.Contains(body, instanceText)
+		})
+	})
+}
+
 func configureTerraformOptions(t *testing.T, fixtureFolder string) *terraform.Options {
 
 	// Pick a random AWS region to test in. This helps ensure your code works in all regions.
@@ -157,8 +204,7 @@ func configureTerraformOptions(t *testing.T, fixtureFolder string) *terraform.Op
 		// Variables to pass to our Terraform code using -var options
 		Vars: map[string]interface{}{
 			"aws_region":    "us-east-1",
-		},
+  		},
 	}
-
 	return terraformOptions
 }

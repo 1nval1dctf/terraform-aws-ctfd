@@ -205,6 +205,24 @@ variable "eks_users" {
 
   default = []
 }
+
+variable "create_eks" {
+  type        = bool
+  default     = true
+  description = "Create EKS cluster. If false `k8s_config` need to be set"
+}
+variable "k8s_backend" {
+  type        = bool
+  default     = false
+  description = "Create DB and cache within kubernetes"
+}
+
+variable "k8s_config" {
+  type        = string
+  default     = ""
+  description = "Kubernetes config file location"
+}
+
 variable "force_destroy_log_bucket" {
   type        = bool
   default     = false
