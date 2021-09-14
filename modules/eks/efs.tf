@@ -1,6 +1,6 @@
 module "efs" {
   source  = "cloudposse/efs/aws"
-  version = "0.31.0"
+  version = "0.31.1"
   region  = data.aws_region.current.name
   vpc_id  = var.vpc_id
   subnets = var.private_subnet_ids

@@ -39,7 +39,7 @@ resource "aws_kms_key" "eks" {
 
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
-  version         = "17.1.0"
+  version         = "17.18.0"
   cluster_name    = var.eks_cluster_name
   cluster_version = "1.20"
   subnets         = var.private_subnet_ids
@@ -166,7 +166,7 @@ module "metrics-server" {
 
 module "load_balancer_controller" {
   source                           = "DNXLabs/eks-lb-controller/aws"
-  version                          = "0.4.0"
+  version                          = "0.4.1"
   enabled                          = true
   cluster_identity_oidc_issuer     = module.eks.cluster_oidc_issuer_url
   cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
