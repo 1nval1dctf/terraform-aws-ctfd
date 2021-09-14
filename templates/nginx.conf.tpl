@@ -12,6 +12,18 @@ server {
       try_files $uri $uri @backend;
   }
 
+  # Handle Server Sent Events for Notifications
+  location /events {
+    include proxy_params;
+    proxy_pass http://unix:/run/gunicorn.sock;
+    proxy_set_header Connection '';
+    proxy_http_version 1.1;
+    chunked_transfer_encoding off;
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_redirect off;
+  }
+
   # everything else we 'forward' to CTFd
   location / {
       try_files /dev/null @backend;
@@ -19,12 +31,9 @@ server {
 
   location @backend {
     include proxy_params;
+    proxy_pass http://unix:/run/gunicorn.sock;
     proxy_headers_hash_max_size 512;
     proxy_headers_hash_bucket_size 128;
     proxy_buffering off;
-    # as per http://docs.gunicorn.org/en/stable/deploy.html will stop ctfd from generating http links in https responses
-    proxy_set_header X-Forwarded-Proto $scheme;
-
-    proxy_pass http://unix:/run/gunicorn.sock;
   }
 }
