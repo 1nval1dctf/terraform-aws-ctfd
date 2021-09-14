@@ -40,8 +40,12 @@ validate: init
 	AWS_DEFAULT_REGION="us-east-1" terraform validate 
 
 .PHONY : tfsec
-tfset: init 
-	docker run --rm -it -v "$(pwd):/src" liamg/tfsec /src
+tfsec: init 
+	docker run --rm -it -v `pwd`:/src tfsec/tfsec --exclude AWS007,AWS066,AWS068,AWS069,AWS082 /src
+
+.PHONY : tflint
+tflint: init 
+	docker run --rm -t -v `pwd`:/data wata727/tflint
 
 .PHONY : init_tests
 init_tests:
