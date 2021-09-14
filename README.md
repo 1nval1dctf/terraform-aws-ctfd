@@ -4,8 +4,7 @@
 
 Terraform module to deploy [CTFd](https://ctfd.io/) into scalable AWS infrastructure
 
-*WARNING* This module has never been battle tested. It was developed for use in a CTF for a security conference that was cancelled due to COVID-19. The author is neither a CTFd developer nor a cloud expert and did this module partially as a learning exercise. That's not to say you shouldn't use it but if you do plan on using it, and have expertise, it would be great to have feedback/contributions on both the deployment model and terraform coding. Further you almost certainly want to scale out the instance from what is done below - these were chosen to keep costs low during development.
-
+This has been used in a moderately sized CTF > 1000 participants and performed well with a setup similar to the example below, though you may want to scale out a little.
 
 ## Usage
 
@@ -20,14 +19,13 @@ module "ctfd" {
   asg_instance_type = "t2.micro"
   workers = 3
   worker_connections = 3000
-  ctfd_version = "2.3.3"
+  ctfd_version = "3.3.0"
   # If you need custom themes or plugins create a gzip tarball that can be applied to the root ctfd source checkout directory. i.e. should contain `CTFd/[plugins/themes]/your_extra_stuff`
   ctfd_overlay = "path/to/ctd_overlay.tar.gz"
 }
 ```
 
 ## Design
-
 
 The CTFd setup Looks something like this:
 
@@ -64,14 +62,13 @@ graph TB
     end
 ```
 
-*Note* CTFd does not currently support separate database readers/writers or proper sharding for ElastiCache so the cluster setups are likely overkill for what we get.
+*Note* CTFd does not currently support separate sharding for ElastiCache so the cluster setups is likely overkill for what we get.
 
 ## Examples
 
  * [Simple](examples/simple)
 
 ## Inputs
-
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
@@ -121,6 +118,7 @@ graph TB
 | ctf_domain | Domain to use for the CTFd deployment. Only used if `create_cdn` is `true`. | string | "" | no |
 | ctf_domain_zone_id | zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`. | string | "" | no |
 | upload_filesize_limit | Nginx setting `client_max_bosy_size` which limits the max size of any handouts you can upload.. | string | "100M" | no |
+
 ## Outputs
 
 | Name | Description |
@@ -198,7 +196,6 @@ View agent logs
 cat /opt/aws/amazon-cloudwatch-agent/logs/configuration-validation.log
 ```
 
-
 ## Building / Contributing
 
 ### Install prerequisites
@@ -221,7 +218,7 @@ curl ${LATEST_URL} > /tmp/terraform.zip
 
 ### Run tests
 
-Warning this will spin up CTFd which will cost you some money.
+Warning this will spin up CTFd in AWS which will cost you some money.
 
 ```bash
 make
