@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 module "ctfd" {
-  source                            = "../../"
+  source                            = "1nval1dctf/ctfd/aws"
   db_deletion_protection            = false
   elasticache_cluster_instance_type = "cache.t2.micro"
   elasticache_cluster_instances     = 2

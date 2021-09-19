@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 module "ctfd" {
-  source      = "../../"
+  source      = "1nval1dctf/ctfd/aws"
   db_user     = "ctfd"
   db_name     = "ctfd"
   k8s_backend = true
