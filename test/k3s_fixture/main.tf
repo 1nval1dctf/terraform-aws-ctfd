@@ -24,11 +24,8 @@ provider "aws" {
 
 
 module "test" {
-  source       = "../../"
-  ctfd_version = "3.3.0"
-  db_user      = "ctfd"
-  db_name      = "ctfd"
-  k8s_backend  = true
-  k8s_config   = "~/.kube/config"
-  create_eks   = false
+  source      = "../../"
+  k8s_backend = true
+  k8s_config  = "~/.kube/k3s_config"
+  create_eks  = false
 }

@@ -4,13 +4,11 @@ TESTDIR  = $(CURDIR)/test/
 FIXTUREDIR  = $(TESTDIR)/fixture/
 TMPFILE := $(shell mktemp)
 MODULES := $(wildcard modules/*/.)
+EXAMPLES := $(wildcard examples/*/.)
+TEST_FIXTURES := $(wildcard test/*/.)
 
 export TF_DATA_DIR ?= $(FIXTUREDIR)/.terraform
 
-define terraform_fmt
-    terraform fmt -write=false $(1) &> $(TMPFILE)
-	if [ -s $(TMPFILE) ]; then echo "Some terraform files need be formatted, run 'terraform fmt' to fix"; rm $(TMPFILE); exit 1; fi && rm $(TMPFILE)
-endef
 
 .PHONY: all
 ## Default target
@@ -24,8 +22,13 @@ format_all: format format_examples format_tests format_modules
 
 .PHONY : test
 ## Run tests
-test: validate_all format_all tfsec
-	cd $(TESTDIR) && go test -v -timeout 30m -run TestK3s
+test: validate_all tfsec
+	cd $(TESTDIR) && go test -v -timeout 10m -run TestK3s
+
+.PHONY : test_aws
+## Run tests
+test_aws: validate_all tfsec
+	cd $(TESTDIR) && go test -v -timeout 40m -run TestAws
 
 .PHONY : init
 init:
@@ -33,11 +36,12 @@ init:
 
 .PHONY : format
 format:
-	$(call terraform_fmt,'.')
+	terraform fmt .
 
 .PHONY : validate
 validate: init
-	AWS_DEFAULT_REGION="us-east-1" terraform validate 
+	AWS_DEFAULT_REGION="us-east-1" terraform validate || exit;
+	terraform fmt --check || exit;
 
 .PHONY : tfsec
 tfsec: init 
@@ -49,29 +53,53 @@ tflint: init
 
 .PHONY : init_tests
 init_tests:
-	pushd test/fixture && terraform init -upgrade -input=false -backend=false && popd
+	for TEST in $(TEST_FIXTURES); do \
+		echo "terraform init $$TEST"; \
+		pushd $$TEST && terraform init -upgrade -input=false -backend=false && popd; \
+	done
 
 .PHONY : format_tests
 format_tests:
-	$(call terraform_fmt,'test/fixture')
-	$(call terraform_fmt,'test/k3s_fixture')
+	for TEST in $(TEST_FIXTURES); do \
+		echo "terraform fmt $$TEST"; \
+	    terraform fmt $$TEST || exit; \
+	done
 
 .PHONY : validate_tests
 validate_tests: init_tests
-	pushd test/fixture && terraform validate && popd
+	for TEST in $(TEST_FIXTURES); do \
+		pushd $$TEST; \
+		echo "terraform validate $$TEST"; \
+		terraform validate || exit; \
+		echo "terraform fmt $$TEST"; \
+		terraform fmt --check || exit; \
+		popd; \
+	done
 
 .PHONY : init_examples
 init_examples:
-	pushd examples/simple && terraform init -upgrade -input=false -backend=false && popd
+	for EXAMPLE in $(EXAMPLES); do \
+		echo "terraform init $$EXAMPLE"; \
+		pushd $$EXAMPLE && terraform init -upgrade -input=false -backend=false && popd; \
+	done
 
 .PHONY : format_examples
 format_examples:
-	$(call terraform_fmt,'examples/simple')
-	$(call terraform_fmt,'examples/existing_k8s')
+	for EXAMPLE in $(EXAMPLES); do \
+		echo "terraform fmt $$EXAMPLE"; \
+	    terraform fmt $$EXAMPLE || exit; \
+	done
 
 .PHONY : validate_examples
-validate_examples: init_examples 
-	pushd examples/simple && terraform validate && popd
+validate_examples: init_examples
+	for EXAMPLE in $(EXAMPLES); do \
+		pushd $$EXAMPLE; \
+		echo "terraform validate $$EXAMPLE"; \
+		terraform validate || exit; \
+		echo "terraform fmt $$EXAMPLE"; \
+		terraform fmt --check || exit; \
+		popd; \
+	done
 
 .PHONY : init_modules
 init_modules:
@@ -84,15 +112,18 @@ init_modules:
 format_modules:
 	for MODULE in $(MODULES); do \
 		echo "terraform fmt $$MODULE"; \
-	    terraform fmt -write=false $$MODULE &> $(TMPFILE); \
-		if [ -s $(TMPFILE) ]; then echo "Some terraform files need be formatted, run 'terraform fmt' to fix"; rm $(TMPFILE); exit 1; fi && rm $(TMPFILE); \
+	    terraform fmt $$MODULE || exit; \
 	done
 
 .PHONY : validate_modules
 validate_modules: init_modules 
 	for MODULE in $(MODULES); do \
+		pushd $$MODULE; \
 		echo "terraform validate $$MODULE"; \
-		pushd $$MODULE && AWS_DEFAULT_REGION="us-east-1" terraform validate && popd; \
+		AWS_DEFAULT_REGION="us-east-1" terraform validate  || exit; \
+		echo "terraform fmt $$MODULE"; \
+		terraform fmt --check || exit; \
+		popd; \
 	done
 
 .PHONY : clean

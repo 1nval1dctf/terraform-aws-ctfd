@@ -1,6 +1,7 @@
 output "db_connection_string" {
   value       = "mysql+pymysql://${var.db_user}:${random_password.password.result}@${aws_rds_cluster.ctfdb.endpoint}:${var.db_port}/${var.db_name}"
   description = "connection string for RDS"
+  sensitive   = true
 }
 
 output "rds_endpoint_address" {
@@ -23,11 +24,6 @@ output "rds_password" {
   value       = random_password.password.result
   description = "Generated password for the database"
   sensitive   = true
-}
-
-output "rds_security_group_id" {
-  value       = aws_security_group.rds.id
-  description = "ID of security group associated with the RDS"
 }
 
 output "rds_user" {

@@ -24,6 +24,7 @@ resource "random_password" "password" {
   special = false
 }
 
+#tfsec:ignore:AWS051
 resource "aws_rds_cluster" "ctfdb" {
   cluster_identifier              = var.db_cluster_name
   database_name                   = var.db_name
@@ -40,10 +41,9 @@ resource "aws_rds_cluster" "ctfdb" {
   skip_final_snapshot             = var.db_skip_final_snapshot
   deletion_protection             = var.db_deletion_protection
   enabled_cloudwatch_logs_exports = var.db_engine_mode == "serverless" ? null : ["audit", "error", "general", "slowquery"]
-  storage_encrypted               = var.db_engine_mode == "serverless" ? null : var.rds_encryption_key_arn != "" ? true : null
+  storage_encrypted               = var.db_engine_mode == "serverless" ? true : var.rds_encryption_key_arn != "" ? true : null
   backup_retention_period         = 2
-  #tfsec:ignore:AWS051
-  kms_key_id = var.rds_encryption_key_arn
+  kms_key_id                      = var.rds_encryption_key_arn
 
   dynamic "scaling_configuration" {
     for_each = var.db_engine_mode == "serverless" ? [1] : []

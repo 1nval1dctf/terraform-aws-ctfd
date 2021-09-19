@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.1"
     }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">= 1.9.4"
+    }
   }
 }
 
@@ -65,14 +69,13 @@ module "elasticache" {
   elasticache_encryption_key_arn    = var.elasticache_encryption_key_arn
 }
 module "eks" {
-  count                     = var.create_eks ? 1 : 0
-  source                    = "./modules/eks"
-  vpc_id                    = module.vpc.0.vpc_id
-  private_subnet_ids        = module.vpc.0.private_subnet_ids
-  public_subnet_ids         = module.vpc.0.public_subnet_ids
-  eks_users                 = var.eks_users
-  eks_fargate_namespace     = local.namespace
-  default_security_group_id = module.vpc.0.default_security_group_id
+  count              = var.create_eks ? 1 : 0
+  source             = "./modules/eks"
+  vpc_id             = module.vpc.0.vpc_id
+  private_subnet_ids = module.vpc.0.private_subnet_ids
+  public_subnet_ids  = module.vpc.0.public_subnet_ids
+  eks_users          = var.eks_users
+  eks_namespace      = local.namespace
 }
 
 module "s3" {

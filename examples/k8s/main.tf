@@ -4,11 +4,10 @@ provider "aws" {
 }
 
 module "ctfd" {
-  source       = "../../"
-  ctfd_version = "3.3.0"
-  db_user      = "ctfd"
-  db_name      = "ctfd"
-  k8s_backend  = true
-  k8s_config   = "~/.kube/config"
-  create_eks   = false
+  source      = "../../"
+  db_user     = "ctfd"
+  db_name     = "ctfd"
+  k8s_backend = true
+  k8s_config  = "~/.kube/config"
+  create_eks  = false
 }

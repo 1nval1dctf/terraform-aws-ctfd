@@ -17,7 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/rds"
 )
 
-func Test(t *testing.T) {
+func TestAws(t *testing.T) {
 	t.Parallel()
 
 	fixtureFolder := "./fixture"
@@ -54,12 +54,11 @@ func Test(t *testing.T) {
 		// Subnets
 		subnets := aws.GetSubnetsForVpc(t, vpcId, awsRegion)
 		//dynamic_subnets should create 1 private and 1 public subnet for each availability zone.
-		// now changed to limit to 2 availability zones so 2 x (1 private, 1 public)
-		require.Equal(t, 2 * 2, len(subnets))
+		require.Equal(t, 3 * 2, len(subnets))
 
 		// public subnet
 		publicSubnetIds := terraform.OutputList(t, terraformOptions, "public_subnet_ids")
-		require.Equal(t, 2, len(publicSubnetIds))
+		require.Equal(t, 3, len(publicSubnetIds))
 		for _, subnetId := range publicSubnetIds {
 			// Verify if the network that is supposed to be public is really public
 			assert.True(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
@@ -67,7 +66,7 @@ func Test(t *testing.T) {
 
 		// private subnet
 		privateSubnetIds := terraform.OutputList(t, terraformOptions, "private_subnet_ids")
-		require.Equal(t, 2, len(privateSubnetIds))
+		require.Equal(t, 3, len(privateSubnetIds))
 		for _, subnetId := range privateSubnetIds {
 			// Verify if the network that is supposed to be private is really private
 			assert.False(t, aws.IsPublicSubnet(t, subnetId, awsRegion))
@@ -78,12 +77,15 @@ func Test(t *testing.T) {
 	// Check the S3 bucket for challenge storage
 	test_structure.RunTestStage(t, "validate_s3", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
+		awsRegion := terraformOptions.Vars["aws_region"].(string)
 
-		// S3 bucket
-		s3BucketName := terraform.Output(t, terraformOptions, "s3_bucket_name")
-		s3BucketRegion := terraform.Output(t, terraformOptions, "s3_bucket_region")
+		// challenge bucket
+		s3ChallengeBucketName := terraform.Output(t, terraformOptions, "challenge_bucket_arn")
+		aws.AssertS3BucketExists(t, awsRegion, s3ChallengeBucketName)
+		// log bucket
+		s3LogBucketName := terraform.Output(t, terraformOptions, "log_bucket_arn")
+		aws.AssertS3BucketExists(t, awsRegion, s3LogBucketName)
 
-		aws.AssertS3BucketExists(t, s3BucketRegion, s3BucketName)
 	})
 
 	// Check the ElastiCache

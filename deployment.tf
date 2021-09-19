@@ -1,33 +1,3 @@
-provider "kubernetes" {
-  host                   = var.k8s_backend ? null : module.eks.0.eks_cluster_endpoint
-  cluster_ca_certificate = var.k8s_backend ? null : base64decode(module.eks.0.eks_cluster_ca)
-  config_path            = var.k8s_backend ? var.k8s_config : null
-  dynamic "exec" {
-    for_each = var.k8s_backend ? [] : [1]
-    content {
-      api_version = "client.authentication.k8s.io/v1alpha1"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.0.eks_cluster_id]
-      command     = "aws"
-    }
-  }
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = var.k8s_backend ? null : module.eks.0.eks_cluster_endpoint
-    cluster_ca_certificate = var.k8s_backend ? null : base64decode(module.eks.0.eks_cluster_ca)
-    config_path            = var.k8s_backend ? var.k8s_config : null
-    dynamic "exec" {
-      for_each = var.k8s_backend ? [] : [1]
-      content {
-        api_version = "client.authentication.k8s.io/v1alpha1"
-        args        = ["eks", "get-token", "--cluster-name", module.eks.0.eks_cluster_id]
-        command     = "aws"
-      }
-    }
-  }
-}
-
 resource "kubernetes_deployment" "ctfd" {
   metadata {
     name      = local.service_name
@@ -141,14 +111,8 @@ resource "kubernetes_deployment" "ctfd" {
           }
 
           liveness_probe {
-            http_get {
-              path = "/themes/core/static/css/main.min.css"
+            tcp_socket {
               port = 8000
-
-              http_header {
-                name  = "X-Custom-Header"
-                value = "liveness-probe"
-              }
             }
           }
 
@@ -159,9 +123,10 @@ resource "kubernetes_deployment" "ctfd" {
 
               http_header {
                 name  = "X-Custom-Header"
-                value = "liveness-probe"
+                value = "readiness-probe"
               }
             }
+            initial_delay_seconds = 20
           }
         }
         volume {
@@ -182,6 +147,11 @@ resource "kubernetes_deployment" "ctfd" {
       type = "Recreate"
     }
   }
+  depends_on = [
+    kubernetes_persistent_volume_claim.ctfd-logs-claim,
+    kubernetes_persistent_volume_claim.ctfd-uploads-claim,
+    module.eks.0.fargate_profile_ids
+  ]
 }
 
 resource "kubernetes_service" "ctfd-web" {
@@ -205,19 +175,20 @@ resource "kubernetes_service" "ctfd-web" {
       target_port = 8000
       protocol    = "TCP"
     }
-    type = "NodePort"
+    type = "ClusterIP"
   }
-  depends_on = [kubernetes_deployment.ctfd]
+  depends_on = [
+    kubernetes_deployment.ctfd
+  ]
 }
 
 resource "kubernetes_ingress" "ctfd-web" {
-  count                  = var.create_eks ? 0 : 1
   wait_for_load_balancer = true
   metadata {
     name      = local.service_name
     namespace = local.namespace
     annotations = {
-      "kubernetes.io/ingress.class" = "alb"
+      "kubernetes.io/ingress.class" = var.create_eks ? "alb" : "traefik"
       "alb.ingress.kubernetes.io/scheme" : "internet-facing"
     }
   }
@@ -225,7 +196,7 @@ resource "kubernetes_ingress" "ctfd-web" {
     rule {
       http {
         path {
-          path = "/*"
+          path = var.create_eks ? "/*" : "/"
           backend {
             service_name = kubernetes_service.ctfd-web.metadata.0.name
             service_port = 80
@@ -234,45 +205,11 @@ resource "kubernetes_ingress" "ctfd-web" {
       }
     }
   }
-  depends_on = [kubernetes_service.ctfd-web]
-}
+  depends_on = [
+    kubernetes_service.ctfd-web,
+    module.load_balancer_controller
+  ]
 
-resource "kubernetes_persistent_volume_claim" "ctfd-logs-claim" {
-  metadata {
-    name      = "ctfd-logs-claim"
-    namespace = local.namespace
-    labels = {
-      content = "ctfd-log-data"
-    }
-  }
-  spec {
-    access_modes = ["ReadWriteOnce"]
-    resources {
-      requests = {
-        storage = "100Mi"
-      }
-    }
-  }
-  wait_until_bound = false
-}
-
-resource "kubernetes_persistent_volume_claim" "ctfd-uploads-claim" {
-  metadata {
-    name      = "ctfd-uploads-claim"
-    namespace = local.namespace
-    labels = {
-      content = "ctfd-file-upload-data"
-    }
-  }
-  spec {
-    access_modes = ["ReadWriteOnce"]
-    resources {
-      requests = {
-        storage = "1Gi"
-      }
-    }
-  }
-  wait_until_bound = false
 }
 
 resource "kubernetes_horizontal_pod_autoscaler" "ctfd-web" {

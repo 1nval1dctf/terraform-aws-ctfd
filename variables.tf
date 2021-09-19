@@ -1,8 +1,16 @@
+
 variable "app_name" {
   type        = string
   default     = "ctfd"
   description = "Name of application (ex: \"ctfd\")"
 }
+
+variable "aws_region" {
+  type        = string
+  description = "Region to deploy CTFd into"
+  default     = "us-east-1"
+}
+
 
 variable "force_destroy_challenge_bucket" {
   type        = bool
@@ -119,18 +127,6 @@ variable "https_certificate_arn" {
   default     = ""
 }
 
-variable "ctfd_version" {
-  type        = string
-  description = "Version of CTFd docker image to deploy"
-  default     = "latest"
-}
-
-variable "allowed_cidr_blocks" {
-  type        = list(any)
-  description = "Cidr blocks allowed to hit the frontend (ALB)"
-  default     = ["0.0.0.0/0"]
-}
-
 variable "s3_encryption_key_arn" {
   type        = string
   description = "Encryption key for use with S3 bucket at-rest encryption. Unencrypted if this is empty."
@@ -164,27 +160,21 @@ variable "ctf_domain_zone_id" {
   default     = ""
 }
 
-variable "upload_filesize_limit" {
-  type        = string
-  description = "Nginx setting `client_max_bosy_size` which limits the max size of any handouts you can upload."
-  default     = "100M"
-}
-
 variable "registry_server" {
   type        = string
-  description = "Container registry server."
+  description = "Container registry server. Needed if using a private registry for a custom CTFd image."
   default     = "gitlab.com"
 }
 
 variable "registry_username" {
   type        = string
-  description = "Username for container registry."
+  description = "Username for container registry. Needed if using a private registry for a custom CTFd image."
   default     = null
 }
 
 variable "registry_password" {
   type        = string
-  description = "Password for container registry."
+  description = "Password for container registry. Needed if using a private registry for a custom CTFd image."
   default     = null
   sensitive   = true
 }
@@ -209,7 +199,7 @@ variable "eks_users" {
 variable "create_eks" {
   type        = bool
   default     = true
-  description = "Create EKS cluster. If false `k8s_config` need to be set"
+  description = "Create EKS cluster. If false `k8s_config` needs to be set"
 }
 variable "k8s_backend" {
   type        = bool

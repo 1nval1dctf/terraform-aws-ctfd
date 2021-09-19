@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.46"
+      version = "~> 3.59"
     }
     helm = {
       source  = "hashicorp/helm"
@@ -13,11 +13,8 @@ terraform {
   }
 }
 
-locals {
-  alb_namespace        = "alb-controller"
-  metrics_namespace    = "metrics-server"
-  fluent_bit_namespace = "aws-cloudwatch-logs"
-}
+data "aws_region" "current" {}
+
 
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
@@ -41,14 +38,15 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "17.18.0"
   cluster_name    = var.eks_cluster_name
-  cluster_version = "1.20"
-  subnets         = var.private_subnet_ids
+  cluster_version = "1.21"
+  subnets         = concat(var.private_subnet_ids, var.public_subnet_ids)
+  fargate_subnets = var.private_subnet_ids
   vpc_id          = var.vpc_id
   # needed for OpenID Connect Provider
   enable_irsa = true
   # avoid the need for aws-iam-authenticator
   kubeconfig_aws_authenticator_command      = "aws"
-  kubeconfig_aws_authenticator_command_args = ["eks", "get-token", "--cluster-name", var.eks_cluster_name]
+  kubeconfig_aws_authenticator_command_args = ["eks", "get-token", "--region", data.aws_region.current.name, "--cluster-name", var.eks_cluster_name]
   map_users                                 = var.eks_users
   # workers_group_defaults = {
   #   root_volume_type = "gp2"
@@ -61,37 +59,17 @@ module "eks" {
   #     asg_min_size         = 1
   #   }
   # ]
+
   fargate_profiles = {
     default = {
       name = "default"
       selectors = [
         {
-          namespace = var.eks_fargate_namespace
+          namespace = "kube-system"
+        },
+        {
+          namespace = var.eks_namespace
         }
-      ]
-    },
-    alb = {
-      name = "alb"
-      selectors = [
-        {
-          namespace = local.alb_namespace
-        },
-      ]
-    },
-    metrics = {
-      name = "metrics"
-      selectors = [
-        {
-          namespace = local.metrics_namespace
-        },
-      ]
-    },
-    fluent_bit = {
-      name = "fluent_bit"
-      selectors = [
-        {
-          namespace = local.fluent_bit_namespace
-        },
       ]
     }
   }
@@ -110,79 +88,33 @@ module "eks" {
   ]
 }
 
-
-data "aws_region" "current" {}
-
-resource "kubernetes_namespace" "metrics-server" {
-  metadata {
-    name = local.metrics_namespace
-  }
+resource "local_file" "kube_ca" {
+  content  = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  filename = "${path.module}/.terraform/ca.crt"
 }
 
-resource "kubernetes_namespace" "alb-controller" {
-  metadata {
-    name = local.alb_namespace
+# Hopefully not needed at some point: https://github.com/hashicorp/terraform-provider-kubernetes/issues/723
+resource "null_resource" "k8s_patcher" {
+  depends_on = [module.eks.0]
+  triggers = {
+    // fire any time the cluster is update in a way that changes its endpoint or auth
+    endpoint = data.aws_eks_cluster.cluster.endpoint
+    ca_crt   = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   }
-}
-
-resource "kubernetes_namespace" "fluent_bit" {
-  metadata {
-    name = local.fluent_bit_namespace
+  provisioner "local-exec" {
+    command = <<EOF
+kubectl \
+  --server=$KUBESERVER --token=$KUBETOKEN --certificate-authority=$KUBECA \
+  patch deployment coredns -n kube-system --type json \
+  -p='[{"op": "remove", "path": "/spec/template/metadata/annotations/eks.amazonaws.com~1compute-type"}]'
+kubectl \
+  --server=$KUBESERVER --token=$KUBETOKEN --certificate-authority=$KUBECA \
+  rollout restart -n kube-system deployment coredns
+EOF
+    environment = {
+      KUBESERVER = data.aws_eks_cluster.cluster.endpoint
+      KUBETOKEN  = data.aws_eks_cluster_auth.cluster.token
+      KUBECA     = local_file.kube_ca.filename
+    }
   }
-}
-
-module "metrics-server" {
-  source               = "cookielab/metrics-server/kubernetes"
-  version              = "0.11.1"
-  kubernetes_namespace = local.metrics_namespace
-  depends_on           = [module.eks.aws_eks_fargate_profile]
-  kubernetes_deployment_tolerations = [{
-    key      = "eks.amazonaws.com/compute-type"
-    value    = "fargate"
-    operator = "Equal"
-    effect   = "NoExecute"
-  }]
-}
-
-# module "eks-cloudwatch-logs" {
-#   source                           = "DNXLabs/eks-cloudwatch-logs/aws"
-#   version                          = "0.1.3"
-#   cluster_name                     = module.eks.cluster_id
-#   cluster_identity_oidc_issuer     = module.eks.cluster_oidc_issuer_url
-#   cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
-#   worker_iam_role_name             = module.eks.worker_iam_role_name
-#   region                           = data.aws_region.current.name
-#   namespace                        = local.fluent_bit_namespace
-#   create_namespace                 = false
-#   depends_on                       = [module.eks]
-#   settings = {
-#     tolerations = [{
-#       key = "eks.amazonaws.com/compute-type"
-#       value = "fargate'"
-#       effect = "NoExecute"
-#     }]
-#   }
-# }
-
-module "load_balancer_controller" {
-  source                           = "DNXLabs/eks-lb-controller/aws"
-  version                          = "0.4.1"
-  enabled                          = true
-  cluster_identity_oidc_issuer     = module.eks.cluster_oidc_issuer_url
-  cluster_identity_oidc_issuer_arn = module.eks.oidc_provider_arn
-  cluster_name                     = module.eks.cluster_id
-  depends_on                       = [module.eks.aws_eks_fargate_profile]
-  settings = {
-    region      = data.aws_region.current.name,
-    vpcId       = var.vpc_id
-    tolerations = <<EOT
-    [{
-      key = "eks.amazonaws.com/compute-type"
-      value = "fargate"
-      effect = "NoExecute"
-    }]
-    EOT
-  }
-  create_namespace = false
-  namespace        = local.alb_namespace
 }

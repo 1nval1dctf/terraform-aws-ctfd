@@ -16,13 +16,6 @@ module "ctfd" {
   db_deletion_protection = false
   elasticache_cluster_instance_type = "cache.t2.micro"
   elasticache_cluster_instances = 2
-  asg_instance_type = "t2.micro"
-  workers = 3
-  worker_connections = 3000
-  ctfd_version = "3.3.0"
-  # If you need custom themes or plugins create a gzip tarball that can be applied to the root ctfd source checkout directory. i.e. should contain `CTFd/[plugins/themes]/your_extra_stuff`
-  ctfd_overlay = "path/to/ctd_overlay.tar.gz"
-}
 ```
 
 ## Design
@@ -72,9 +65,8 @@ graph TB
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| ctfd_version | Version of CTFd to deploy | string |  | yes |
-| ctfd_repo | Git repository to clone CTFd from | string | `https://github.com/CTFd/CTFd.git` | no |
-| ctfd_overlay | Path to compressed package to unpack over the top of the CTFd repository. Used to package custom themes and plugins. Must be a gzip compressed tarball | string |  | no |
+| aws_region | Region to deploy CTFd into | string | `us-east-1` | no |
+| ctfd_image | Docker image for the CTFd frontend | string | `ctfd/ctfd` | no |
 | app_name | Name of application (ex: `ctfd`) | string | `ctfd` | no |
 | vpc_cidr_block | The top-level CIDR block for the VPC. | string | `10.0.0.0/16` | no |
 | force_destroy_challenge_bucket | Whether the S3 bucket containing the CTFD challenge data should be force destroyed | bool | false | no |
@@ -95,45 +87,42 @@ graph TB
 | db_skip_final_snapshot | If true database will not be snapshoted before deletion. | bool | `false` | no |
 | db_serverless_min_capacity | Minimum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`. | number | 1 | no |
 | db_serverless_max_capacity | Maximum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`. | number | 128 | no |
-| launch_configuration_name_prefix | Name prefix for the launch configuration | string | `ctfd-web-` | no |
-| asg_min_size | Minimum number of instances in frontend auto scaling group | number | `1` | no |
-| asg_max_size | Maximum number of instances in frontend auto scaling group | number | `1` | no |
-| asg_instance_type | Type of instances in frontend auto scaling group | string | `t3a.micro` | no |
-| workers | Number of workers (processes) for gunicorn. Should be (CPU's *2) + 1) based on CPU's from asg_instance_type | number | `5` | no |
-| worker_class | Type of worker class for gunicorn | string | `gevent` | no |
-| worker_connections | Number of worker connections (pseudo-threads) per worker for gunicorn. Should be (CPU's *2) + 1) * 1000. based on CPU's from asg_instance_type | number | `5000` | no |
-| log_dir | CTFd log directory | string | `/var/log/CTFd` | no |
-| access_log | CTFd access log location | string | `/var/log/CTFd/access.log` | no |
-| error_log | CTFd error log location | string | `/var/log/CTFd/error.log` | no |
-| worker_temp_dir | temp location for workers | string | `/dev/shm` | no |
 | https_certificate_arn | SSL Certificate ARN to be used for the HTTPS server. If empty then HTTPS is not setup | string | `` | no |
-| scripts_dir | Where helper scripts are deployed on EC2 instances of CTFd asg | string | `/opt/ctfd-scripts` | no |
-| ctfd_dir | Where CTFd is cloned to on EC2 instances of CTFd asg | string | `/opt/ctfd` | no |
-| allowed_cidr_blocks | Cidr blocks allowed to hit the frontend (ALB) | list(string) | `["0.0.0.0/0"]` | no |
 | s3_encryption_key_arn | Encryption key for use with S3 bucket at-rest encryption. Unencrypted if this is empty. | string | "" | no |
 | rds_encryption_key_arn | Encryption key for use with RDS at-rest encryption. Unencrypted if this is empty. | string | "" | no |
 | elasticache_encryption_key_arn | Encryption key for use with ElastiCache at-rest encryption. Unencrypted if this is empty. | string | "" | no |
 | create_cdn | Whether to create a cloudfront CDN deployment. | bool | false | no |
 | ctf_domain | Domain to use for the CTFd deployment. Only used if `create_cdn` is `true`. | string | "" | no |
 | ctf_domain_zone_id | zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`. | string | "" | no |
-| upload_filesize_limit | Nginx setting `client_max_bosy_size` which limits the max size of any handouts you can upload.. | string | "100M" | no |
+| registry_server | Container registry server. Needed if using a private registry for a custom CTFd image. | string | "gitlab.com" | no |
+| registry_username | Username for container registry. Needed if using a private registry for a custom CTFd image. | string | null | no |
+| registry_password | Password for container registry. Needed if using a private registry for a custom CTFd image. | string | null | no |
+| eks_users | Additional AWS users to add to the EKS aws-auth configmap. | list(object({
+    userarn  = string
+    username = string
+    groups   = list(string)
+  })) | null | no |
+| create_eks | Create EKS cluster. If false `k8s_config` needs to be set. | bool | true | no |
+| k8s_backend | Create DB and cache within kubernetes. | bool | false | no |
+| k8s_config | Kubernetes config file location. Only required if `create_eks` is set to `false` | string | "" | no |
+| force_destroy_log_bucket | Whether the S3 bucket containing the logging data should be force destroyed. | bool | false | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | lb_dns_name | DNS name for the Load Balancer |
-| lb_dns_zone_id | The canonical hosted zone ID of the Load Balancer |
-| s3_bucket | Challenge bucket arn |
+| lb_port | Port that CTFd is reachable on |
 | vpc_id | Id for the VPC created for CTFd |
-| aws_availability_zones | list of availability zones ctfd was deployed into |
+| challenge_bucket_arn | Challenge bucket arn |
+| log_bucket_arn | Log bucket arn |
 | private_subnet_ids | List of private subnets that contain backend infrastructure (RDS, ElastiCache, EC2) |
 | public_subnet_ids | List of public subnets that contain frontend infrastructure (ALB) |
 | elasticache_cluster_id | Id of the ElastiCache cluster |
 | rds_endpoint_address | Endpoint address for RDS |
 | rds_id | Id of RDS cluster |
 | rds_port | Port for RDS |
-| rds_password | Generated password for the database |
+| db_password | Generated password for the database |
 
 ## Debugging
 
@@ -182,7 +171,7 @@ sudo systemctl stop gunicorn.service
 (cd /opt/ctfd && sudo -u www-data ../ctfd-scripts/gunicorn.sh )
 ```
 
-### Checking for issues with cloadwatch logging
+### Checking for issues with cloudwatch logging
 
 Confirm the agent is running
 ```bash

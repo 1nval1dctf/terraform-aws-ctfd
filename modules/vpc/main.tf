@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.46"
+      version = "~> 3.59"
     }
   }
 }
@@ -24,15 +24,16 @@ module "vpc" {
   enable_dns_support   = true
   enable_nat_gateway   = true
   single_nat_gateway   = true
+
   vpc_tags = {
-    "kubernetes.io/cluster/${var.app_name}-vpc" = "shared"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
   }
   public_subnet_tags = {
-    "kubernetes.io/cluster/${var.app_name}-vpc" = "shared"
-    "kubernetes.io/role/elb"                    = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
+    "kubernetes.io/role/elb"                        = "1"
   }
   private_subnet_tags = {
-    "kubernetes.io/cluster/${var.app_name}-vpc" = "shared"
-    "kubernetes.io/role/internal-elb"           = "1"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
+    "kubernetes.io/role/internal-elb"               = "1"
   }
 }

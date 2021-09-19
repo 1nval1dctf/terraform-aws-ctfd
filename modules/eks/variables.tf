@@ -33,13 +33,8 @@ variable "eks_users" {
   default = []
 }
 
-variable "eks_fargate_namespace" {
+variable "eks_namespace" {
   type        = string
-  description = "namespace for the fargate profile in EKS"
+  description = "namespace for the CTFd deployment in EKS."
   default     = "default"
-}
-
-variable "default_security_group_id" {
-  type        = string
-  description = "Default VPC security group"
 }
