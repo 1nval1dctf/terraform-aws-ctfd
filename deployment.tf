@@ -1,3 +1,15 @@
+
+resource "kubernetes_secret" "deployment_secrets" {
+  metadata {
+    name = "deployment-secrets"
+  }
+  data = {
+    "db_connection_string"    = var.k8s_backend ? module.k8s.0.db_connection_string : module.rds.0.db_connection_string
+    "ctfd_secret"             = random_password.ctfd_secret_key.result
+    "redis_connection_string" = var.k8s_backend ? module.k8s.0.cache_connection_string : module.elasticache.0.cache_connection_string
+  }
+}
+
 resource "kubernetes_deployment" "ctfd" {
   metadata {
     name      = local.service_name
@@ -40,16 +52,34 @@ resource "kubernetes_deployment" "ctfd" {
             value = 3
           }
           env {
-            name  = "DATABASE_URL"
-            value = var.k8s_backend ? module.k8s.0.db_connection_string : module.rds.0.db_connection_string
+            name = "DATABASE_URL"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.deployment_secrets.metadata.0.name
+                key  = "db_connection_string"
+
+              }
+            }
           }
           env {
-            name  = "REDIS_URL"
-            value = var.k8s_backend ? module.k8s.0.cache_connection_string : module.elasticache.0.cache_connection_string
+            name = "REDIS_URL"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.deployment_secrets.metadata.0.name
+                key  = "redis_connection_string"
+
+              }
+            }
           }
           env {
-            name  = "SECRET_KEY"
-            value = random_password.ctfd_secret_key.result
+            name = "SECRET_KEY"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.deployment_secrets.metadata.0.name
+                key  = "ctfd_secret"
+
+              }
+            }
           }
           dynamic "env" {
             for_each = var.k8s_backend ? [] : [1]

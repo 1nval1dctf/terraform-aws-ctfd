@@ -18,7 +18,7 @@ output "challenge_bucket_arn" {
   description = "Challenge bucket arn"
 }
 
-output "log_bucket_arn" {  
+output "log_bucket_arn" {
   value       = var.create_eks ? module.s3.0.log_bucket_arn : null
   description = "Logging bucket arn"
 }
