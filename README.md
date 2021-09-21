@@ -60,9 +60,10 @@ flowchart TB
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 3.59.0 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | 2.3.0 |
 | <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | >= 1.9.4 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.3 |
-| <a name="requirement_local"></a> [local](#requirement\_local) | ~> 2.1 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.1 |
 ## Providers
 
@@ -148,7 +149,7 @@ provider "aws" {
 }
 
 module "ctfd" {
-  source                            = "1nval1dctf/ctfd/aws"
+  source                            = "../../" # Actually set to "1nval1dctf/ctfd/aws"
   db_deletion_protection            = false
   elasticache_cluster_instance_type = "cache.t2.micro"
   elasticache_cluster_instances     = 2
@@ -160,13 +161,12 @@ module "ctfd" {
 ### K8s Example
 
 ```hcl
-#annoying that we need this, even when not used
-provider "aws" {
-  region = "us-east-1"
+terraform {
+  required_version = ">= 1.0.0"
 }
 
 module "ctfd" {
-  source      = "1nval1dctf/ctfd/aws"
+  source      = "../../" # Actually set to "1nval1dctf/ctfd/aws"
   db_user     = "ctfd"
   db_name     = "ctfd"
   k8s_backend = true
@@ -179,7 +179,7 @@ module "ctfd" {
 
 ### Install prerequisites
 
-Golang
+#### Golang
 
 ```bash
 wget https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
@@ -187,13 +187,17 @@ sudo tar -C /usr/local -xzf go1.15.6.linux-amd64.tar.gz
 rm go1.15.6.linux-amd64.tar.gz
 ```
 
-Terraform
+#### Terraform
 
 ```bash
 LATEST_URL=$(curl https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].builds[].url | select(.|test("alpha|beta|rc")|not) | select(.|contains("linux_amd64"))' | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n | tail -1)
 curl ${LATEST_URL} > /tmp/terraform.zip
 (cd /tmp && unzip /tmp/terraform.zip && chmod +x /tmp/terraform && sudo mv /tmp/terraform /usr/local/bin/)
 ```
+
+#### Pre-commit and tools
+
+Follow: https://github.com/antonbabenko/pre-commit-terraform#how-to-install
 
 ### Run tests
 

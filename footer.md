@@ -2,7 +2,7 @@
 
 ### Install prerequisites
 
-Golang 
+#### Golang 
 
 ```bash
 wget https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
@@ -10,13 +10,19 @@ sudo tar -C /usr/local -xzf go1.15.6.linux-amd64.tar.gz
 rm go1.15.6.linux-amd64.tar.gz
 ```
 
-Terraform
+#### Terraform
 
 ```bash
 LATEST_URL=$(curl https://releases.hashicorp.com/terraform/index.json | jq -r '.versions[].builds[].url | select(.|test("alpha|beta|rc")|not) | select(.|contains("linux_amd64"))' | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n | tail -1)
 curl ${LATEST_URL} > /tmp/terraform.zip
 (cd /tmp && unzip /tmp/terraform.zip && chmod +x /tmp/terraform && sudo mv /tmp/terraform /usr/local/bin/)
 ```
+
+
+#### Pre-commit and tools
+
+
+Follow: https://github.com/antonbabenko/pre-commit-terraform#how-to-install
 
 ### Run tests
 
