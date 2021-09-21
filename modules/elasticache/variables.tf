@@ -14,16 +14,6 @@ variable "private_subnet_ids" {
   description = "List of private subnet ids"
 }
 
-variable "public_subnet_ids" {
-  type        = list(string)
-  description = "List of private subnet ids"
-}
-
-variable "frontend_security_groups" {
-  type        = list(string)
-  description = "List of security groups associated with the frontend."
-}
-
 variable "elasticache_cluster_id" {
   type        = string
   description = "Id to assign the new ElastiCache cluster"

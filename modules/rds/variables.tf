@@ -10,17 +10,6 @@ variable "private_subnet_ids" {
   default     = []
 }
 
-variable "public_subnet_ids" {
-  type        = list(string)
-  description = "List of private subnet ids"
-  default     = []
-}
-
-variable "frontend_security_groups" {
-  type        = list(string)
-  description = "List of security groups associated with the frontend."
-}
-
 variable "db_cluster_instances" {
   type        = number
   description = "Number of instances to create in the RDS cluster. Only used if db_engine_mode set to `provisioned`"

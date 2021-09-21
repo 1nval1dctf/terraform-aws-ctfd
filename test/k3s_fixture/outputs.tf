@@ -14,6 +14,7 @@ output "ctfd_connection_string" {
 }
 
 output "db_password" {
-  value     = module.test.db_password
-  sensitive = true
+  value       = module.test.db_password
+  sensitive   = true
+  description = "Generated password for the database"
 }

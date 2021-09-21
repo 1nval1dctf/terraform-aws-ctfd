@@ -1,16 +1,5 @@
 terraform {
   required_version = ">= 1.0.0"
-  required_providers {
-
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.59"
-    }
-    local = {
-      source  = "hashicorp/local"
-      version = "~> 2.1"
-    }
-  }
 }
 
 locals {
@@ -52,8 +41,8 @@ module "cdn" {
   cached_methods                  = ["GET", "HEAD"]
   price_class                     = "PriceClass_All"
   log_bucket_fqdn                 = var.log_bucket
-  logging_enabled                 = var.log_bucket != "" ? true : false
-  viewer_minimum_protocol_version = "TLSv1.2_2019"
+  logging_enabled                 = true
+  viewer_minimum_protocol_version = "TLSv1.2_2021"
 
   ordered_cache = [
     # cache themes, dont forward query params

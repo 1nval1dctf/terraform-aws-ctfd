@@ -3,7 +3,7 @@ resource "random_password" "password" {
   special = false
 }
 
-resource "kubernetes_persistent_volume_claim" "db-data-claim" {
+resource "kubernetes_persistent_volume_claim" "db_data_claim" {
   metadata {
     name      = "db-data-claim"
     namespace = var.namespace
@@ -22,7 +22,7 @@ resource "kubernetes_persistent_volume_claim" "db-data-claim" {
   }
   wait_until_bound = false
 }
-resource "kubernetes_deployment" "ctfd-db" {
+resource "kubernetes_deployment" "ctfd_db" {
   metadata {
     name      = local.db_service_name
     namespace = var.namespace
@@ -106,7 +106,7 @@ resource "kubernetes_deployment" "ctfd-db" {
         volume {
           name = "db-data"
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.db-data-claim.metadata.0.name
+            claim_name = kubernetes_persistent_volume_claim.db_data_claim.metadata[0].name
           }
         }
       }
@@ -117,7 +117,7 @@ resource "kubernetes_deployment" "ctfd-db" {
   }
 }
 
-resource "kubernetes_service" "ctfd-db" {
+resource "kubernetes_service" "ctfd_db" {
   metadata {
     name      = local.db_service_name
     namespace = var.namespace
@@ -128,7 +128,7 @@ resource "kubernetes_service" "ctfd-db" {
   }
   spec {
     selector = {
-      service = kubernetes_deployment.ctfd-db.metadata.0.labels.service
+      service = kubernetes_deployment.ctfd_db.metadata[0].labels.service
     }
     port {
       port        = var.db_port

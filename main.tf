@@ -1,10 +1,17 @@
 terraform {
   required_version = ">= 1.0.0"
   required_providers {
-
-    local = {
-      source  = "hashicorp/local"
-      version = "~> 2.1"
+    aws = {
+      source  = "hashicorp/aws"
+      version = "3.59.0"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "2.3.0"
+    }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">= 1.9.4"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -13,10 +20,6 @@ terraform {
     random = {
       source  = "hashicorp/random"
       version = "~> 3.1"
-    }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.9.4"
     }
   }
 }
@@ -35,10 +38,8 @@ resource "random_password" "ctfd_secret_key" {
 module "rds" {
   count                      = var.k8s_backend ? 0 : 1
   source                     = "./modules/rds"
-  vpc_id                     = module.vpc.0.vpc_id
-  private_subnet_ids         = module.vpc.0.private_subnet_ids
-  public_subnet_ids          = module.vpc.0.public_subnet_ids
-  frontend_security_groups   = [module.eks.0.eks_worker_security_group_id]
+  vpc_id                     = module.vpc[0].vpc_id
+  private_subnet_ids         = module.vpc[0].private_subnet_ids
   db_cluster_instances       = var.db_cluster_instances
   db_cluster_name            = var.db_cluster_name
   db_cluster_instance_type   = var.db_cluster_instance_type
@@ -58,10 +59,8 @@ module "rds" {
 module "elasticache" {
   count                             = var.k8s_backend ? 0 : 1
   source                            = "./modules/elasticache"
-  vpc_id                            = module.vpc.0.vpc_id
-  private_subnet_ids                = module.vpc.0.private_subnet_ids
-  public_subnet_ids                 = module.vpc.0.public_subnet_ids
-  frontend_security_groups          = [module.eks.0.eks_worker_security_group_id]
+  vpc_id                            = module.vpc[0].vpc_id
+  private_subnet_ids                = module.vpc[0].private_subnet_ids
   elasticache_cluster_id            = var.elasticache_cluster_id
   elasticache_cluster_instances     = var.elasticache_cluster_instances
   elasticache_cluster_instance_type = var.elasticache_cluster_instance_type
@@ -71,9 +70,9 @@ module "elasticache" {
 module "eks" {
   count              = var.create_eks ? 1 : 0
   source             = "./modules/eks"
-  vpc_id             = module.vpc.0.vpc_id
-  private_subnet_ids = module.vpc.0.private_subnet_ids
-  public_subnet_ids  = module.vpc.0.public_subnet_ids
+  vpc_id             = module.vpc[0].vpc_id
+  private_subnet_ids = module.vpc[0].private_subnet_ids
+  public_subnet_ids  = module.vpc[0].public_subnet_ids
   eks_users          = var.eks_users
   eks_namespace      = local.namespace
 }
@@ -93,8 +92,8 @@ module "cdn" {
   app_name              = var.app_name
   ctf_domain_zone_id    = var.ctf_domain_zone_id
   https_certificate_arn = var.https_certificate_arn
-  log_bucket            = module.s3.0.log_bucket_arn
-  origin_domain_name    = kubernetes_service.ctfd-web.status.0.load_balancer.0.ingress.0.hostname
+  log_bucket            = module.s3[0].log_bucket_arn
+  origin_domain_name    = kubernetes_service.ctfd_web.status[0].load_balancer[0].ingress[0].hostname
 }
 
 module "k8s" {

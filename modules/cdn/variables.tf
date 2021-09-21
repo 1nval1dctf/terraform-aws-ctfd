@@ -1,5 +1,6 @@
 
 variable "ctf_domain" {
+  type        = string
   description = "Domain to use for the CTFd deployment."
   default     = null
 }
@@ -11,6 +12,7 @@ variable "app_name" {
 }
 
 variable "ctf_domain_zone_id" {
+  type        = string
   description = "zone id for the route53 zone for the ctf_domain."
   default     = null
 }
@@ -23,8 +25,8 @@ variable "https_certificate_arn" {
 
 variable "log_bucket" {
   type        = string
-  description = "Bucket for S3 and ALB log data. Logging disabled if empty"
-  default     = ""
+  description = "Bucket for S3 and ALB log data."
+  default     = null
 }
 
 variable "origin_domain_name" {

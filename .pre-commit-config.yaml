@@ -11,7 +11,7 @@ repos:
       args:
         - '--args=--config=__GIT_WORKING_DIR__/.tflint.hcl'
       require_serial: true
-    - id: terraform_tfsec
-    - id: checkov
-    - id: terrascan
+    #- id: terraform_tfsec
+    #- id: checkov
+    #- id: terrascan
     

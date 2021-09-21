@@ -1,10 +1,9 @@
-#annoying that we need this, even when not used
-provider "aws" {
-  region = "us-east-1"
+terraform {
+  required_version = ">= 1.0.0"
 }
 
 module "ctfd" {
-  source      = "1nval1dctf/ctfd/aws"
+  source      = "../../" # Actually set to "1nval1dctf/ctfd/aws"
   db_user     = "ctfd"
   db_name     = "ctfd"
   k8s_backend = true

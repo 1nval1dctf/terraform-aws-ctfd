@@ -1,4 +1,4 @@
-resource "kubernetes_persistent_volume_claim" "cache-data-claim" {
+resource "kubernetes_persistent_volume_claim" "cache_data_claim" {
   metadata {
     name      = "cache-data-claim"
     namespace = var.namespace
@@ -18,7 +18,7 @@ resource "kubernetes_persistent_volume_claim" "cache-data-claim" {
   wait_until_bound = false
 }
 
-resource "kubernetes_deployment" "ctfd-cache" {
+resource "kubernetes_deployment" "ctfd_cache" {
   metadata {
     name      = local.cache_service_name
     namespace = var.namespace
@@ -77,7 +77,7 @@ resource "kubernetes_deployment" "ctfd-cache" {
         volume {
           name = "data"
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.cache-data-claim.metadata.0.name
+            claim_name = kubernetes_persistent_volume_claim.cache_data_claim.metadata[0].name
           }
         }
       }
@@ -88,7 +88,7 @@ resource "kubernetes_deployment" "ctfd-cache" {
   }
 }
 
-resource "kubernetes_service" "ctfd-cache" {
+resource "kubernetes_service" "ctfd_cache" {
   metadata {
     name      = local.cache_service_name
     namespace = var.namespace
@@ -99,7 +99,7 @@ resource "kubernetes_service" "ctfd-cache" {
   }
   spec {
     selector = {
-      service = kubernetes_deployment.ctfd-cache.metadata.0.labels.service
+      service = kubernetes_deployment.ctfd_cache.metadata[0].labels.service
     }
     port {
       port        = var.cache_port

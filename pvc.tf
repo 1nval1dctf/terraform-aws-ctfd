@@ -1,4 +1,4 @@
-resource "kubernetes_persistent_volume_claim" "ctfd-logs-claim" {
+resource "kubernetes_persistent_volume_claim" "ctfd_logs_claim" {
   metadata {
     name      = "ctfd-logs-claim"
     namespace = local.namespace
@@ -8,7 +8,7 @@ resource "kubernetes_persistent_volume_claim" "ctfd-logs-claim" {
   }
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = var.create_eks ? kubernetes_persistent_volume.ctfd-logs.0.spec.0.storage_class_name : "local-path"
+    storage_class_name = var.create_eks ? kubernetes_persistent_volume.ctfd_logs[0].spec[0].storage_class_name : "local-path"
     resources {
       requests = {
         storage = "100Mi"
@@ -16,10 +16,10 @@ resource "kubernetes_persistent_volume_claim" "ctfd-logs-claim" {
     }
   }
   wait_until_bound = var.create_eks ? true : false
-  depends_on       = [kubernetes_persistent_volume.ctfd-logs]
+  depends_on       = [kubernetes_persistent_volume.ctfd_logs]
 }
 
-resource "kubernetes_persistent_volume_claim" "ctfd-uploads-claim" {
+resource "kubernetes_persistent_volume_claim" "ctfd_uploads_claim" {
   metadata {
     name      = "ctfd-uploads-claim"
     namespace = local.namespace
@@ -29,7 +29,7 @@ resource "kubernetes_persistent_volume_claim" "ctfd-uploads-claim" {
   }
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = var.create_eks ? kubernetes_persistent_volume.ctfd-uploads.0.spec.0.storage_class_name : "local-path"
+    storage_class_name = var.create_eks ? kubernetes_persistent_volume.ctfd_uploads[0].spec[0].storage_class_name : "local-path"
     resources {
       requests = {
         storage = "1Gi"
@@ -37,5 +37,5 @@ resource "kubernetes_persistent_volume_claim" "ctfd-uploads-claim" {
     }
   }
   wait_until_bound = var.create_eks ? true : false
-  depends_on       = [kubernetes_persistent_volume.ctfd-uploads]
+  depends_on       = [kubernetes_persistent_volume.ctfd_uploads]
 }

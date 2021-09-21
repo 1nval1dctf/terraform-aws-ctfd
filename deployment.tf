@@ -4,9 +4,9 @@ resource "kubernetes_secret" "deployment_secrets" {
     name = "deployment-secrets"
   }
   data = {
-    "db_connection_string"    = var.k8s_backend ? module.k8s.0.db_connection_string : module.rds.0.db_connection_string
+    "db_connection_string"    = var.k8s_backend ? module.k8s[0].db_connection_string : module.rds[0].db_connection_string
     "ctfd_secret"             = random_password.ctfd_secret_key.result
-    "redis_connection_string" = var.k8s_backend ? module.k8s.0.cache_connection_string : module.elasticache.0.cache_connection_string
+    "redis_connection_string" = var.k8s_backend ? module.k8s[0].cache_connection_string : module.elasticache[0].cache_connection_string
   }
 }
 
@@ -41,7 +41,7 @@ resource "kubernetes_deployment" "ctfd" {
         dynamic "image_pull_secrets" {
           for_each = var.registry_password != null ? [1] : []
           content {
-            name = kubernetes_secret.regcred[0].metadata.0.name
+            name = kubernetes_secret.regcred[0].metadata[0].name
           }
         }
         container {
@@ -55,7 +55,7 @@ resource "kubernetes_deployment" "ctfd" {
             name = "DATABASE_URL"
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.deployment_secrets.metadata.0.name
+                name = kubernetes_secret.deployment_secrets.metadata[0].name
                 key  = "db_connection_string"
 
               }
@@ -65,7 +65,7 @@ resource "kubernetes_deployment" "ctfd" {
             name = "REDIS_URL"
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.deployment_secrets.metadata.0.name
+                name = kubernetes_secret.deployment_secrets.metadata[0].name
                 key  = "redis_connection_string"
 
               }
@@ -75,7 +75,7 @@ resource "kubernetes_deployment" "ctfd" {
             name = "SECRET_KEY"
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.deployment_secrets.metadata.0.name
+                name = kubernetes_secret.deployment_secrets.metadata[0].name
                 key  = "ctfd_secret"
 
               }
@@ -92,7 +92,7 @@ resource "kubernetes_deployment" "ctfd" {
             for_each = var.k8s_backend ? [] : [1]
             content {
               name  = "AWS_S3_BUCKET"
-              value = module.s3.0.challenge_bucket_arn
+              value = module.s3[0].challenge_bucket_arn
             }
           }
           env {
@@ -115,7 +115,7 @@ resource "kubernetes_deployment" "ctfd" {
             for_each = var.k8s_backend ? [] : [1]
             content {
               name  = "CHALLENGE_BUCKET"
-              value = module.s3.0.challenge_bucket_arn
+              value = module.s3[0].challenge_bucket_arn
             }
           }
           volume_mount {
@@ -162,13 +162,13 @@ resource "kubernetes_deployment" "ctfd" {
         volume {
           name = "logs"
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.ctfd-logs-claim.metadata.0.name
+            claim_name = kubernetes_persistent_volume_claim.ctfd_logs_claim.metadata[0].name
           }
         }
         volume {
           name = "uploads"
           persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim.ctfd-uploads-claim.metadata.0.name
+            claim_name = kubernetes_persistent_volume_claim.ctfd_uploads_claim.metadata[0].name
           }
         }
       }
@@ -178,13 +178,13 @@ resource "kubernetes_deployment" "ctfd" {
     }
   }
   depends_on = [
-    kubernetes_persistent_volume_claim.ctfd-logs-claim,
-    kubernetes_persistent_volume_claim.ctfd-uploads-claim,
-    module.eks.0.fargate_profile_ids
+    kubernetes_persistent_volume_claim.ctfd_logs_claim,
+    kubernetes_persistent_volume_claim.ctfd_uploads_claim,
+    module.eks[0].fargate_profile_ids
   ]
 }
 
-resource "kubernetes_service" "ctfd-web" {
+resource "kubernetes_service" "ctfd_web" {
   metadata {
     name      = local.service_name
     namespace = local.namespace
@@ -198,7 +198,7 @@ resource "kubernetes_service" "ctfd-web" {
   }
   spec {
     selector = {
-      service = kubernetes_deployment.ctfd.metadata.0.labels.service
+      service = kubernetes_deployment.ctfd.metadata[0].labels.service
     }
     port {
       port        = 80
@@ -212,7 +212,7 @@ resource "kubernetes_service" "ctfd-web" {
   ]
 }
 
-resource "kubernetes_ingress" "ctfd-web" {
+resource "kubernetes_ingress" "ctfd_web" {
   wait_for_load_balancer = true
   metadata {
     name      = local.service_name
@@ -228,7 +228,7 @@ resource "kubernetes_ingress" "ctfd-web" {
         path {
           path = var.create_eks ? "/*" : "/"
           backend {
-            service_name = kubernetes_service.ctfd-web.metadata.0.name
+            service_name = kubernetes_service.ctfd_web.metadata[0].name
             service_port = 80
           }
         }
@@ -236,13 +236,13 @@ resource "kubernetes_ingress" "ctfd-web" {
     }
   }
   depends_on = [
-    kubernetes_service.ctfd-web,
+    kubernetes_service.ctfd_web,
     module.load_balancer_controller
   ]
 
 }
 
-resource "kubernetes_horizontal_pod_autoscaler" "ctfd-web" {
+resource "kubernetes_horizontal_pod_autoscaler" "ctfd_web" {
   metadata {
     name      = local.service_name
     namespace = local.namespace

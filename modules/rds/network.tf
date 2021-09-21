@@ -14,7 +14,6 @@ resource "aws_security_group" "rds" {
     to_port     = var.db_port
     protocol    = "tcp"
     cidr_blocks = [data.aws_vpc.selected.cidr_block]
-    #security_groups = var.frontend_security_groups
   }
 
   # allow outbound traffic to the frontend security group
@@ -23,7 +22,6 @@ resource "aws_security_group" "rds" {
     to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = [data.aws_vpc.selected.cidr_block]
-    #security_groups = var.frontend_security_groups
   }
 
   tags = {

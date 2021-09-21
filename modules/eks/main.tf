@@ -1,14 +1,17 @@
 terraform {
   required_version = ">= 1.0.0"
-
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 3.59"
     }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.2"
+    local = {
+      source  = "hashicorp/local"
+      version = "2.1.0"
+    }
+    null = {
+      source  = "hashicorp/null"
+      version = "3.1.0"
     }
   }
 }
@@ -22,10 +25,6 @@ data "aws_eks_cluster" "cluster" {
 
 data "aws_eks_cluster_auth" "cluster" {
   name = module.eks.cluster_id
-}
-
-data "aws_iam_role" "worker_role" {
-  name = module.eks.worker_iam_role_name
 }
 
 resource "aws_kms_key" "eks" {
@@ -48,17 +47,6 @@ module "eks" {
   kubeconfig_aws_authenticator_command      = "aws"
   kubeconfig_aws_authenticator_command_args = ["eks", "get-token", "--region", data.aws_region.current.name, "--cluster-name", var.eks_cluster_name]
   map_users                                 = var.eks_users
-  # workers_group_defaults = {
-  #   root_volume_type = "gp2"
-  # }
-  # worker_groups = [
-  #   {
-  #     name                 = "${var.eks_cluster_name}-kube-system-node-group"
-  #     instance_type        = "t3.micro"
-  #     asg_desired_capacity = 1
-  #     asg_min_size         = 1
-  #   }
-  # ]
 
   fargate_profiles = {
     default = {
@@ -95,11 +83,11 @@ resource "local_file" "kube_ca" {
 
 # Hopefully not needed at some point: https://github.com/hashicorp/terraform-provider-kubernetes/issues/723
 resource "null_resource" "k8s_patcher" {
-  depends_on = [module.eks.0]
+  depends_on = [module.eks[0]]
   triggers = {
-    // fire any time the cluster is update in a way that changes its endpoint or auth
+    # fire any time the cluster is update in a way that changes its endpoint or auth
     endpoint = data.aws_eks_cluster.cluster.endpoint
-    ca_crt   = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+    ca_crt   = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
   }
   provisioner "local-exec" {
     command = <<EOF
