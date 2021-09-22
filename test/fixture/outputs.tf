@@ -1,11 +1,11 @@
-output "challenge_bucket_arn" {
-  description = "Challenge bucket ARN"
-  value       = module.test.challenge_bucket_arn
+output "challenge_bucket_id" {
+  description = "Challenge bucket name"
+  value       = module.test.challenge_bucket_id
 }
 
-output "log_bucket_arn" {
-  description = "Log bucket ARN"
-  value       = module.test.log_bucket_arn
+output "log_bucket_id" {
+  description = "Log bucket name"
+  value       = module.test.log_bucket_id
 }
 
 output "vpc_id" {

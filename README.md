@@ -70,7 +70,6 @@ flowchart TB
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 3.59.0 |
-| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.3.0 |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.5.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.1.0 |
 ## Inputs
@@ -117,12 +116,12 @@ flowchart TB
 
 | Name | Description |
 |------|-------------|
-| <a name="output_challenge_bucket_arn"></a> [challenge\_bucket\_arn](#output\_challenge\_bucket\_arn) | Challenge bucket arn |
+| <a name="output_challenge_bucket_id"></a> [challenge\_bucket\_id](#output\_challenge\_bucket\_id) | Challenge bucket name |
 | <a name="output_db_password"></a> [db\_password](#output\_db\_password) | Generated password for the database |
 | <a name="output_elasticache_cluster_id"></a> [elasticache\_cluster\_id](#output\_elasticache\_cluster\_id) | Id of the ElastiCache cluster |
 | <a name="output_lb_dns_name"></a> [lb\_dns\_name](#output\_lb\_dns\_name) | DNS name for the Load Balancer |
 | <a name="output_lb_port"></a> [lb\_port](#output\_lb\_port) | Port that CTFd is reachable on |
-| <a name="output_log_bucket_arn"></a> [log\_bucket\_arn](#output\_log\_bucket\_arn) | Logging bucket arn |
+| <a name="output_log_bucket_id"></a> [log\_bucket\_id](#output\_log\_bucket\_id) | Logging bucket name |
 | <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | List of private subnets that contain backend infrastructure (RDS, ElastiCache, EC2) |
 | <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | List of public subnets that contain frontend infrastructure (ALB) |
 | <a name="output_rds_endpoint_address"></a> [rds\_endpoint\_address](#output\_rds\_endpoint\_address) | Endpoint address for RDS |

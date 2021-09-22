@@ -13,14 +13,14 @@ output "vpc_id" {
   description = "Id for the VPC created for CTFd"
 }
 
-output "challenge_bucket_arn" {
-  value       = var.create_eks ? module.s3[0].challenge_bucket_arn : null
-  description = "Challenge bucket arn"
+output "challenge_bucket_id" {
+  value       = var.create_eks ? module.s3[0].challenge_bucket.id : null
+  description = "Challenge bucket name"
 }
 
-output "log_bucket_arn" {
-  value       = var.create_eks ? module.s3[0].log_bucket_arn : null
-  description = "Logging bucket arn"
+output "log_bucket_id" {
+  value       = var.create_eks ? module.s3[0].log_bucket.id : null
+  description = "Logging bucket name"
 }
 
 output "private_subnet_ids" {

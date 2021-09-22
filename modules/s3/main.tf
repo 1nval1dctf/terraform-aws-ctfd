@@ -70,9 +70,10 @@ resource "aws_s3_bucket" "challenge_bucket" {
   }
 }
 
-resource "aws_s3_bucket_policy" "s3_full_access" {
-  bucket = aws_s3_bucket.challenge_bucket.id
-  policy = data.aws_iam_policy_document.s3_full_access.json
+resource "aws_s3_bucket_policy" "challenge_bucket" {
+  bucket     = aws_s3_bucket.challenge_bucket.id
+  policy     = data.aws_iam_policy_document.s3_full_access.json
+  depends_on = [aws_s3_bucket.challenge_bucket]
 }
 
 resource "aws_s3_bucket_public_access_block" "challenge_bucket" {
@@ -81,8 +82,8 @@ resource "aws_s3_bucket_public_access_block" "challenge_bucket" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+  depends_on              = [aws_s3_bucket_policy.challenge_bucket]
 }
-
 
 #tfsec:ignore:AWS017
 #tfsec:ignore:AWS002
@@ -107,10 +108,17 @@ resource "aws_s3_bucket" "log_bucket" {
   }
 }
 
+resource "aws_s3_bucket_policy" "log_bucket" {
+  bucket     = aws_s3_bucket.log_bucket.id
+  policy     = data.aws_iam_policy_document.s3_full_access.json
+  depends_on = [aws_s3_bucket.log_bucket]
+}
+
 resource "aws_s3_bucket_public_access_block" "log_bucket" {
   bucket                  = aws_s3_bucket.log_bucket.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+  depends_on              = [aws_s3_bucket_policy.log_bucket]
 }

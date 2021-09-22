@@ -9,6 +9,7 @@ import (
 
 	"github.com/gruntwork-io/terratest/modules/aws"
 	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
+	dns_helper "github.com/gruntwork-io/terratest/modules/dns-helper"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/stretchr/testify/assert"
@@ -74,16 +75,16 @@ func TestAws(t *testing.T) {
 
 	})
 
-	// Check the S3 bucket for challenge storage
+	// Check the S3 bucket for challenge and log storage
 	test_structure.RunTestStage(t, "validate_s3", func() {
 		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
 		awsRegion := terraformOptions.Vars["aws_region"].(string)
 
 		// challenge bucket
-		s3ChallengeBucketName := terraform.Output(t, terraformOptions, "challenge_bucket_arn")
+		s3ChallengeBucketName := terraform.Output(t, terraformOptions, "challenge_bucket_id")
 		aws.AssertS3BucketExists(t, awsRegion, s3ChallengeBucketName)
 		// log bucket
-		s3LogBucketName := terraform.Output(t, terraformOptions, "log_bucket_arn")
+		s3LogBucketName := terraform.Output(t, terraformOptions, "log_bucket_id")
 		aws.AssertS3BucketExists(t, awsRegion, s3LogBucketName)
 
 	})
@@ -130,10 +131,19 @@ func TestAws(t *testing.T) {
 
 		// Frontend
 		albDnsName := terraform.Output(t, terraformOptions, "lb_dns_name")
-
-		// It can take a minute or so for the Instance to boot up, so retry a few times
+		
+		// It can take a 10 minutes or so for the DNS to propagate, so retry a few times
+		dnsQuery := dns_helper.DNSQuery{"A", albDnsName}
 		maxRetries := 60
-		timeBetweenRetries := 5 * time.Second
+		timeBetweenRetries := 10 * time.Second
+		_, err := dns_helper.DNSLookupAuthoritativeAllWithRetryE(t, dnsQuery, nil, maxRetries, timeBetweenRetries)
+		if err != nil {
+			t.Errorf("DNS for %s not propagated in time. Error: %v\n", albDnsName, err)
+		}
+
+		// Once DNS is propagated the service should be responsive, so we don't need to retry as much
+		maxRetries = 5
+		timeBetweenRetries = 5 * time.Second
 
 		// Setup a TLS configuration to submit with the helper, a blank struct is acceptable
 		tlsConfig := tls.Config{}
@@ -161,7 +171,7 @@ func TestK3s(t *testing.T) {
 
 	// Deploy the example
 	test_structure.RunTestStage(t, "setup", func() {
-		terraformOptions := configureTerraformOptions(t, fixtureFolder)
+		terraformOptions := configureTerraformOptionsK3s(t, fixtureFolder)
 
 		// Save the options so later test stages can use them
 		test_structure.SaveTerraformOptions(t, fixtureFolder, terraformOptions)
@@ -207,6 +217,16 @@ func configureTerraformOptions(t *testing.T, fixtureFolder string) *terraform.Op
 		Vars: map[string]interface{}{
 			"aws_region":    "us-east-1",
   		},
+	}
+	return terraformOptions
+}
+
+
+func configureTerraformOptionsK3s(t *testing.T, fixtureFolder string) *terraform.Options {
+
+	terraformOptions := &terraform.Options{
+		// The path to where our Terraform code is located
+		TerraformDir: fixtureFolder,
 	}
 	return terraformOptions
 }

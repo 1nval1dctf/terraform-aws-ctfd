@@ -92,7 +92,7 @@ resource "kubernetes_deployment" "ctfd" {
             for_each = var.k8s_backend ? [] : [1]
             content {
               name  = "AWS_S3_BUCKET"
-              value = module.s3[0].challenge_bucket_arn
+              value = module.s3[0].challenge_bucket.arn
             }
           }
           env {
@@ -115,7 +115,7 @@ resource "kubernetes_deployment" "ctfd" {
             for_each = var.k8s_backend ? [] : [1]
             content {
               name  = "CHALLENGE_BUCKET"
-              value = module.s3[0].challenge_bucket_arn
+              value = module.s3[0].challenge_bucket.arn
             }
           }
           volume_mount {

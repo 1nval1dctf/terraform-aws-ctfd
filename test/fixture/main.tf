@@ -13,11 +13,12 @@ provider "aws" {
 }
 
 module "test" {
-  source                         = "../../"
-  force_destroy_challenge_bucket = true
-  force_destroy_log_bucket       = true
-  db_deletion_protection         = false
-  elasticache_cluster_instances  = 2
-  db_engine_mode                 = "serverless"
-  db_skip_final_snapshot         = true
+  source                            = "../../"
+  force_destroy_challenge_bucket    = true
+  force_destroy_log_bucket          = true
+  db_deletion_protection            = false
+  elasticache_cluster_instances     = 2
+  elasticache_cluster_instance_type = "cache.t3.micro"
+  db_engine_mode                    = "serverless"
+  db_skip_final_snapshot            = true
 }

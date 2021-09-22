@@ -67,6 +67,7 @@ module "elasticache" {
   elasticache_cluster_port          = var.elasticache_cluster_port
   elasticache_encryption_key_arn    = var.elasticache_encryption_key_arn
 }
+
 module "eks" {
   count              = var.create_eks ? 1 : 0
   source             = "./modules/eks"
@@ -92,7 +93,7 @@ module "cdn" {
   app_name              = var.app_name
   ctf_domain_zone_id    = var.ctf_domain_zone_id
   https_certificate_arn = var.https_certificate_arn
-  log_bucket            = module.s3[0].log_bucket_arn
+  log_bucket            = module.s3[0].log_bucket.arn
   origin_domain_name    = kubernetes_service.ctfd_web.status[0].load_balancer[0].ingress[0].hostname
 }
 
