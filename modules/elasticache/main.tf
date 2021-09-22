@@ -13,19 +13,10 @@ resource "aws_elasticache_subnet_group" "default" {
   name       = "${var.app_name}-cache-subnet"
   subnet_ids = var.private_subnet_ids
 }
+
 resource "aws_elasticache_parameter_group" "default" {
   name   = "cache-params"
   family = "redis6.x"
-
-  parameter {
-    name  = "activerehashing"
-    value = "yes"
-  }
-
-  parameter {
-    name  = "min-slaves-to-write"
-    value = "2"
-  }
 }
 
 #tfsec:ignore:AWS035
