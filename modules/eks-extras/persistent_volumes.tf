@@ -1,7 +1,6 @@
 #PV for ctfd logs
 resource "aws_efs_access_point" "ctfd_logs" {
-  count          = var.create_eks ? 1 : 0
-  file_system_id = module.efs[0].id
+  file_system_id = module.efs.id
   root_directory {
     path = "/logs"
     creation_info {
@@ -11,8 +10,8 @@ resource "aws_efs_access_point" "ctfd_logs" {
     }
   }
 }
+
 resource "kubernetes_persistent_volume" "ctfd_logs" {
-  count = var.create_eks ? 1 : 0
   metadata {
     name = "efs-pv-logs"
   }
@@ -28,16 +27,19 @@ resource "kubernetes_persistent_volume" "ctfd_logs" {
     persistent_volume_source {
       csi {
         driver        = "efs.csi.aws.com"
-        volume_handle = "${module.efs[0].id}::${aws_efs_access_point.ctfd_logs[0].id}"
+        volume_handle = "${module.efs.id}::${aws_efs_access_point.ctfd_logs.id}"
       }
     }
   }
+  depends_on = [
+    module.efs,
+    aws_efs_access_point.ctfd_logs
+  ]
 }
 
 #PV for ctfd uploads
 resource "aws_efs_access_point" "ctfd_uploads" {
-  count          = var.create_eks ? 1 : 0
-  file_system_id = module.efs[0].id
+  file_system_id = module.efs.id
   root_directory {
     path = "/uploads"
     creation_info {
@@ -47,8 +49,8 @@ resource "aws_efs_access_point" "ctfd_uploads" {
     }
   }
 }
+
 resource "kubernetes_persistent_volume" "ctfd_uploads" {
-  count = var.create_eks ? 1 : 0
   metadata {
     name = "efs-pv-uploads"
   }
@@ -64,8 +66,12 @@ resource "kubernetes_persistent_volume" "ctfd_uploads" {
     persistent_volume_source {
       csi {
         driver        = "efs.csi.aws.com"
-        volume_handle = "${module.efs[0].id}::${aws_efs_access_point.ctfd_uploads[0].id}"
+        volume_handle = "${module.efs.id}::${aws_efs_access_point.ctfd_uploads.id}"
       }
     }
   }
+  depends_on = [
+    module.efs,
+    aws_efs_access_point.ctfd_uploads
+  ]
 }

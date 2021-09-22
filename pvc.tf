@@ -8,7 +8,7 @@ resource "kubernetes_persistent_volume_claim" "ctfd_logs_claim" {
   }
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = var.create_eks ? kubernetes_persistent_volume.ctfd_logs[0].spec[0].storage_class_name : "local-path"
+    storage_class_name = var.create_eks ? module.eks_extras[0].ctfd_logs_persistent_volume.spec[0].storage_class_name : "local-path"
     resources {
       requests = {
         storage = "100Mi"
@@ -16,7 +16,7 @@ resource "kubernetes_persistent_volume_claim" "ctfd_logs_claim" {
     }
   }
   wait_until_bound = var.create_eks ? true : false
-  depends_on       = [kubernetes_persistent_volume.ctfd_logs]
+  depends_on       = [module.eks_extras[0].ctfd_logs_persistent_volume]
 }
 
 resource "kubernetes_persistent_volume_claim" "ctfd_uploads_claim" {
@@ -29,7 +29,7 @@ resource "kubernetes_persistent_volume_claim" "ctfd_uploads_claim" {
   }
   spec {
     access_modes       = ["ReadWriteOnce"]
-    storage_class_name = var.create_eks ? kubernetes_persistent_volume.ctfd_uploads[0].spec[0].storage_class_name : "local-path"
+    storage_class_name = var.create_eks ? module.eks_extras[0].ctfd_uploads_persistent_volume.spec[0].storage_class_name : "local-path"
     resources {
       requests = {
         storage = "1Gi"
@@ -37,5 +37,5 @@ resource "kubernetes_persistent_volume_claim" "ctfd_uploads_claim" {
     }
   }
   wait_until_bound = var.create_eks ? true : false
-  depends_on       = [kubernetes_persistent_volume.ctfd_uploads]
+  depends_on       = [module.eks_extras[0].ctfd_uploads_persistent_volume]
 }

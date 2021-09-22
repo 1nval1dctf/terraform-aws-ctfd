@@ -237,7 +237,7 @@ resource "kubernetes_ingress" "ctfd_web" {
   }
   depends_on = [
     kubernetes_service.ctfd_web,
-    module.load_balancer_controller
+    module.eks_extras[0]
   ]
 
 }

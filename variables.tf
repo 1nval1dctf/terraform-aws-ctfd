@@ -1,4 +1,3 @@
-
 variable "app_name" {
   type        = string
   default     = "ctfd"
@@ -10,7 +9,6 @@ variable "aws_region" {
   description = "Region to deploy CTFd into"
   default     = "us-east-1"
 }
-
 
 variable "force_destroy_challenge_bucket" {
   type        = bool

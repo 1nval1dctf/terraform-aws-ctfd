@@ -78,6 +78,26 @@ module "eks" {
   eks_namespace      = local.namespace
 }
 
+module "eks_extras" {
+  count                   = var.create_eks ? 1 : 0
+  source                  = "./modules/eks-extras"
+  vpc_id                  = module.vpc[0].vpc_id
+  eks_cluster_id          = module.eks[0].eks_cluster_id
+  private_subnet_ids      = module.vpc[0].private_subnet_ids
+  fargate_iam_role_arn    = module.eks[0].fargate_iam_role_arn
+  worker_iam_role_name    = module.eks[0].worker_iam_role_name
+  cluster_oidc_issuer_url = module.eks[0].cluster_oidc_issuer_url
+  oidc_provider_arn       = module.eks[0].oidc_provider_arn
+  fargate_profile_ids     = module.eks[0].fargate_profile_ids
+  depends_on = [
+    module.eks[0].fargate_profile_ids,
+    module.eks[0],
+    module.vpc[0]
+  ]
+}
+
+
+
 module "s3" {
   count                          = var.create_eks ? 1 : 0
   source                         = "./modules/s3"
