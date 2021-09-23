@@ -109,7 +109,7 @@ flowchart TB
 | <a name="input_k8s_config"></a> [k8s\_config](#input\_k8s\_config) | Kubernetes config file location | `string` | `""` | no |
 | <a name="input_rds_encryption_key_arn"></a> [rds\_encryption\_key\_arn](#input\_rds\_encryption\_key\_arn) | Encryption key for use with RDS at-rest encryption. Unencrypted if this is empty. | `string` | `""` | no |
 | <a name="input_registry_password"></a> [registry\_password](#input\_registry\_password) | Password for container registry. Needed if using a private registry for a custom CTFd image. | `string` | `null` | no |
-| <a name="input_registry_server"></a> [registry\_server](#input\_registry\_server) | Container registry server. Needed if using a private registry for a custom CTFd image. | `string` | `"gitlab.com"` | no |
+| <a name="input_registry_server"></a> [registry\_server](#input\_registry\_server) | Container registry server. Needed if using a private registry for a custom CTFd image. | `string` | `"registry.gitlab.com"` | no |
 | <a name="input_registry_username"></a> [registry\_username](#input\_registry\_username) | Username for container registry. Needed if using a private registry for a custom CTFd image. | `string` | `null` | no |
 | <a name="input_s3_encryption_key_arn"></a> [s3\_encryption\_key\_arn](#input\_s3\_encryption\_key\_arn) | Encryption key for use with S3 bucket at-rest encryption. Unencrypted if this is empty. | `string` | `""` | no |
 ## Outputs

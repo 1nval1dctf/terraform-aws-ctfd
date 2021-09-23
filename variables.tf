@@ -163,7 +163,7 @@ variable "ctf_domain_zone_id" {
 variable "registry_server" {
   type        = string
   description = "Container registry server. Needed if using a private registry for a custom CTFd image."
-  default     = "gitlab.com"
+  default     = "registry.gitlab.com"
 }
 
 variable "registry_username" {
