@@ -43,11 +43,6 @@ output "oidc_provider_arn" {
   description = "EKS cluster OIDC provider ARN"
 }
 
-output "worker_iam_role_name" {
-  value       = module.eks.worker_iam_role_name
-  description = "EKS cluster worker IAM role name"
-}
-
 output "fargate_iam_role_arn" {
   value       = module.eks.fargate_iam_role_arn
   description = "EKS cluster fargate IAM role name"
@@ -58,3 +53,7 @@ output "fargate_profile_ids" {
   description = "EKS cluster fargate profile IDs"
 }
 
+output "fargate_iam_role_name" {
+  value       = module.eks.fargate_iam_role_name
+  description = "IAM role name for EKS Fargate pods"
+}

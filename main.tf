@@ -69,26 +69,27 @@ module "elasticache" {
 }
 
 module "eks" {
-  count              = var.create_eks ? 1 : 0
-  source             = "./modules/eks"
-  vpc_id             = module.vpc[0].vpc_id
-  private_subnet_ids = module.vpc[0].private_subnet_ids
-  public_subnet_ids  = module.vpc[0].public_subnet_ids
-  eks_users          = var.eks_users
-  eks_namespace      = local.namespace
+  count                           = var.create_eks ? 1 : 0
+  source                          = "./modules/eks"
+  vpc_id                          = module.vpc[0].vpc_id
+  private_subnet_ids              = module.vpc[0].private_subnet_ids
+  public_subnet_ids               = module.vpc[0].public_subnet_ids
+  eks_users                       = var.eks_users
+  eks_namespace                   = local.namespace
+  fargate_pod_execution_role_name = local.fargate_pod_execution_role_name
 }
 
 module "eks_extras" {
-  count                   = var.create_eks ? 1 : 0
-  source                  = "./modules/eks-extras"
-  vpc_id                  = module.vpc[0].vpc_id
-  eks_cluster_id          = module.eks[0].eks_cluster_id
-  private_subnet_ids      = module.vpc[0].private_subnet_ids
-  fargate_iam_role_arn    = module.eks[0].fargate_iam_role_arn
-  worker_iam_role_name    = module.eks[0].worker_iam_role_name
-  cluster_oidc_issuer_url = module.eks[0].cluster_oidc_issuer_url
-  oidc_provider_arn       = module.eks[0].oidc_provider_arn
-  fargate_profile_ids     = module.eks[0].fargate_profile_ids
+  count                           = var.create_eks ? 1 : 0
+  source                          = "./modules/eks-extras"
+  vpc_id                          = module.vpc[0].vpc_id
+  eks_cluster_id                  = module.eks[0].eks_cluster_id
+  private_subnet_ids              = module.vpc[0].private_subnet_ids
+  fargate_iam_role_arn            = module.eks[0].fargate_iam_role_arn
+  cluster_oidc_issuer_url         = module.eks[0].cluster_oidc_issuer_url
+  oidc_provider_arn               = module.eks[0].oidc_provider_arn
+  fargate_profile_ids             = module.eks[0].fargate_profile_ids
+  fargate_pod_execution_role_name = module.eks[0].fargate_iam_role_name
   depends_on = [
     module.eks[0].fargate_profile_ids,
     module.eks[0],

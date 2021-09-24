@@ -38,3 +38,9 @@ variable "eks_namespace" {
   description = "namespace for the CTFd deployment in EKS."
   default     = "default"
 }
+
+variable "fargate_pod_execution_role_name" {
+  description = "The IAM Role that provides permissions for the EKS Fargate Profile."
+  type        = string
+  default     = null
+}

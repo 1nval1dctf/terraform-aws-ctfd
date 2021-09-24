@@ -37,7 +37,7 @@ module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "17.20.0"
   cluster_name    = var.eks_cluster_name
-  cluster_version = "1.21.2"
+  cluster_version = "1.21"
   subnets         = concat(var.private_subnet_ids, var.public_subnet_ids)
   fargate_subnets = var.private_subnet_ids
   vpc_id          = var.vpc_id
@@ -61,6 +61,7 @@ module "eks" {
       ]
     }
   }
+  fargate_pod_execution_role_name = var.fargate_pod_execution_role_name
   cluster_enabled_log_types = [
     "api",
     "audit",

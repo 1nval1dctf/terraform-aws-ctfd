@@ -22,12 +22,6 @@ variable "fargate_iam_role_arn" {
   default     = null
 }
 
-variable "worker_iam_role_name" {
-  type        = string
-  description = "Role name for EKS workers"
-  default     = null
-}
-
 variable "cluster_oidc_issuer_url" {
   type        = string
   description = "OIDC issuer url for EKS"
@@ -43,5 +37,11 @@ variable "oidc_provider_arn" {
 variable "fargate_profile_ids" {
   type        = list(string)
   description = "Fargate profile ID"
+  default     = null
+}
+
+variable "fargate_pod_execution_role_name" {
+  description = "The IAM Role that provides permissions for the EKS Fargate Profile."
+  type        = string
   default     = null
 }
