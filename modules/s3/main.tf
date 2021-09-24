@@ -107,18 +107,3 @@ resource "aws_s3_bucket" "log_bucket" {
     }
   }
 }
-
-resource "aws_s3_bucket_policy" "log_bucket" {
-  bucket     = aws_s3_bucket.log_bucket.id
-  policy     = data.aws_iam_policy_document.s3_full_access.json
-  depends_on = [aws_s3_bucket.log_bucket]
-}
-
-resource "aws_s3_bucket_public_access_block" "log_bucket" {
-  bucket                  = aws_s3_bucket.log_bucket.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-  depends_on              = [aws_s3_bucket_policy.log_bucket]
-}
