@@ -144,6 +144,7 @@ resource "kubernetes_deployment" "ctfd" {
             tcp_socket {
               port = 8000
             }
+            initial_delay_seconds = 10
           }
 
           readiness_probe {
@@ -253,8 +254,39 @@ resource "kubernetes_horizontal_pod_autoscaler" "ctfd_web" {
     min_replicas = 1
 
     scale_target_ref {
-      kind = "Deployment"
-      name = local.service_name
+      kind        = "Deployment"
+      name        = local.service_name
+      api_version = "apps/v1"
+    }
+    target_cpu_utilization_percentage = 50
+  }
+}
+
+resource "kubernetes_horizontal_pod_autoscaler" "ctfd_web_memory" {
+  metadata {
+    name      = "${local.service_name}-memory-scale"
+    namespace = local.namespace
+  }
+
+  spec {
+    max_replicas = 10
+    min_replicas = 1
+
+    scale_target_ref {
+      kind        = "Deployment"
+      name        = local.service_name
+      api_version = "apps/v1"
+    }
+
+    metric {
+      type = "Resource"
+      resource {
+        name = "memory"
+        target {
+          type                = "Utilization"
+          average_utilization = 80
+        }
+      }
     }
   }
 }

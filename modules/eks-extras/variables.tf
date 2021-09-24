@@ -16,12 +16,6 @@ variable "private_subnet_ids" {
   default     = []
 }
 
-variable "fargate_iam_role_arn" {
-  type        = string
-  description = "ARN for the fargate IAM role for EKS"
-  default     = null
-}
-
 variable "cluster_oidc_issuer_url" {
   type        = string
   description = "OIDC issuer url for EKS"
