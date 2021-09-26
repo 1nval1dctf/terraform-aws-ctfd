@@ -66,5 +66,6 @@ jobs:
       uses: terraform-docs/gh-actions@main
       with:
         working-dir: .
+        output-file: README.md
         git-push: "true"
         config-file: ".terraform-docs.yml"
