@@ -1,7 +1,6 @@
 # CTFd AWS Terraform module
 
-[![Build Status](https://dev.azure.com/invalidctf/invalidctf/_apis/build/status/1nval1dctf.terraform-aws-ctfd?branchName=master)](https://dev.azure.com/invalidctf/invalidctf/_build/latest?definitionId=2&branchName=master)
-
+![ci workflow](https://github.com/1nval1dctf/terraform-aws-ctfd/actions/workflows/ci.yml/badge.svg)
 Terraform module to deploy [CTFd](https://ctfd.io/) into scalable AWS infrastructure
 
 This has been used in a moderately sized CTF > 1000 participants and performed well with a setup similar to the example below, though you may want to scale out a little.
