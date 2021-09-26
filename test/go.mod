@@ -4,9 +4,7 @@ go 1.14
 
 require (
 	cloud.google.com/go v0.75.0 // indirect
-	github.com/Masterminds/semver v1.5.0 // indirect
-	github.com/aws/aws-sdk-go v1.36.25
-	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8 // indirect
+	github.com/aws/aws-sdk-go v1.38.28
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/go-logr/logr v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
@@ -14,15 +12,11 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.1.4 // indirect
 	github.com/googleapis/gnostic v0.5.3 // indirect
-	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
-	github.com/gruntwork-io/gruntwork-cli v0.7.1 // indirect
-	github.com/gruntwork-io/terratest v0.31.3
+	github.com/gruntwork-io/terratest v0.36.7
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/jinzhu/copier v0.2.0 // indirect
-	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/pquerna/otp v1.3.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/shopspring/decimal v0.0.0-20200105231215-408a2507e114 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli v1.22.5 // indirect
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
@@ -33,9 +27,6 @@ require (
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/api v0.19.3
-	k8s.io/client-go v0.19.3
-	k8s.io/kubernetes v1.11.10 // indirect
+	k8s.io/apimachinery v0.19.3
 	k8s.io/utils v0.0.0-20210111153108-fddb29f9d009 // indirect
-	sigs.k8s.io/structured-merge-diff/v3 v3.0.0 // indirect
 )

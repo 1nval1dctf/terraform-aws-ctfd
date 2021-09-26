@@ -3,70 +3,66 @@ SHELL := /bin/bash
 TESTDIR  = $(CURDIR)/test/
 FIXTUREDIR  = $(TESTDIR)/fixture/
 TMPFILE := $(shell mktemp)
+MODULES := $(wildcard modules/*/.)
+EXAMPLES := $(wildcard examples/*/.)
+TEST_FIXTURES := $(wildcard test/*/.)
 
-export TF_DATA_DIR ?= $(FIXTUREDIR)/.terraform
-
-define terraform_fmt
-    terraform fmt -write=false $(1) &> $(TMPFILE)
-	if [ -s $(TMPFILE) ]; then echo "Some terraform files need be formatted, run 'terraform fmt' to fix"; rm $(TMPFILE); exit 1; fi && rm $(TMPFILE)
-endef
 
 .PHONY: all
 ## Default target
-all: test
+all: test pre-commit
 
-.PHONY : validate_all
-validate_all: validate validate_examples validate_tests
-
-.PHONY : format_all
-format_all: format format_examples format_tests
+.PHONY : init_all
+init_all: init init_examples init_tests init_modules
 
 .PHONY : test
 ## Run tests
-test: validate_all format_all tfsec
-	cd $(TESTDIR) && go test -v -timeout 30m
+test: init_tests
+	cd $(TESTDIR) && go test -v -timeout 10m -run TestK3s
+
+.PHONY : test_aws
+## Run tests
+test_aws: init_tests
+	cd $(TESTDIR) && go test -v -timeout 40m -run TestAws
 
 .PHONY : init
 init:
 	terraform init -upgrade -input=false -backend=false
 
-.PHONY : format
-format:
-	$(call terraform_fmt,'.')
-
-.PHONY : validate
-validate: init
-	AWS_DEFAULT_REGION="us-east-1" terraform validate 
-
-.PHONY : tfsec
-tfset: init 
-	docker run --rm -it -v "$(pwd):/src" liamg/tfsec /src
-
 .PHONY : init_tests
 init_tests:
-	pushd test/fixture && terraform init -upgrade -input=false -backend=false && popd
-
-.PHONY : format_tests
-format_tests:
-	$(call terraform_fmt,'test/fixture')
-
-.PHONY : validate_tests
-validate_tests: init_tests
-	pushd test/fixture && terraform validate && popd
+	for TEST in $(TEST_FIXTURES); do \
+		echo "terraform init $$TEST"; \
+		pushd $$TEST && terraform init -upgrade -input=false -backend=false && popd; \
+	done
 
 .PHONY : init_examples
 init_examples:
-	pushd examples/simple && terraform init -upgrade -input=false -backend=false && popd
+	for EXAMPLE in $(EXAMPLES); do \
+		echo "terraform init $$EXAMPLE"; \
+		pushd $$EXAMPLE && terraform init -upgrade -input=false -backend=false && popd; \
+	done
 
-.PHONY : format_examples
-format_examples:
-	$(call terraform_fmt,'examples/simple')
+.PHONY : init_modules
+init_modules:
+	for MODULE in $(MODULES); do \
+		echo "terraform init $$MODULE"; \
+		pushd $$MODULE && terraform init -upgrade -input=false -backend=false && popd; \
+	done
 
-.PHONY : validate_examples
-validate_examples: init_examples 
-	pushd examples/simple && terraform validate && popd
+pre-commit: pre-commit-check clean init_all terrascan-init tflint-init
+	pre-commit run -a
+
+pre-commit-check:
+	$(if $(shell command -v pre-commit 2> /dev/null),,$(error pre-commit is required but not found, please follow https://github.com/antonbabenko/pre-commit-terraform#how-to-install)`)
+
+tflint-init:
+	tflint --init
+
+terrascan-init:
+	terrascan init
 
 .PHONY : clean
 ## Clean up files
 clean:
-	rm -rf $(TF_DATA_DIR) .terraform/
+	$(if $(shell find . -type d -name ".terraform" -print0),find . -type d -name ".terraform" -print0 | xargs -0 rm -r,)

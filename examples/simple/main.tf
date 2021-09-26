@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">= 0.14.9"
+  required_version = ">= 1.0.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.34"
+      version = "~> 3.59"
     }
   }
 }
@@ -13,14 +13,9 @@ provider "aws" {
 }
 
 module "ctfd" {
-  source                            = "../../"
-  force_destroy_challenge_bucket    = true
-  db_cluster_instance_type          = "db.t2.small"
+  source                            = "../../" # Actually set to "1nval1dctf/ctfd/aws"
   db_deletion_protection            = false
   elasticache_cluster_instance_type = "cache.t2.micro"
   elasticache_cluster_instances     = 2
-  asg_instance_type                 = "t2.micro"
-  workers                           = 3
-  worker_connections                = 3000
-  ctfd_version                      = "3.2.1"
+  db_engine_mode                    = "serverless"
 }

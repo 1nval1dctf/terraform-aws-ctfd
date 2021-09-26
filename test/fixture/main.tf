@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">= 0.14.9"
+  required_version = ">= 1.0.0"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.34"
+      version = "~> 3.59"
     }
   }
 }
@@ -13,15 +13,12 @@ provider "aws" {
 }
 
 module "test" {
-  source                         = "../../"
-  force_destroy_challenge_bucket = true
-  db_deletion_protection         = false
-  elasticache_cluster_instances  = 2
-  asg_instance_type              = "t3.medium"
-  asg_min_size                   = 1
-  workers                        = 5
-  worker_connections             = 5000
-  ctfd_version                   = "3.3.0"
-  db_engine_mode                 = "serverless"
-  db_skip_final_snapshot         = true
+  source                            = "../../"
+  force_destroy_challenge_bucket    = true
+  force_destroy_log_bucket          = true
+  db_deletion_protection            = false
+  elasticache_cluster_instances     = 2
+  elasticache_cluster_instance_type = "cache.t3.micro"
+  db_engine_mode                    = "serverless"
+  db_skip_final_snapshot            = true
 }

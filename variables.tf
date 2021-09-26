@@ -4,10 +4,10 @@ variable "app_name" {
   description = "Name of application (ex: \"ctfd\")"
 }
 
-variable "vpc_cidr_block" {
+variable "aws_region" {
   type        = string
-  description = "The top-level CIDR block for the VPC."
-  default     = "10.0.0.0/16"
+  description = "Region to deploy CTFd into"
+  default     = "us-east-1"
 }
 
 variable "force_destroy_challenge_bucket" {
@@ -119,117 +119,9 @@ variable "db_serverless_max_capacity" {
   default     = 128
 }
 
-# Frontend Auto Scaling Group Configuration
-variable "launch_configuration_name_prefix" {
-  type        = string
-  description = "Name prefix for the launch configuration"
-  default     = "ctfd-web-"
-}
-
-variable "asg_min_size" {
-  type        = number
-  description = "Minimum of instances in frontend auto scaling group"
-  default     = 1
-}
-
-variable "asg_max_size" {
-  type        = number
-  description = "Maximum of instances in frontend auto scaling group"
-  default     = 4
-}
-
-variable "asg_instance_type" {
-  type        = string
-  description = "Type of instances in frontend auto scaling group"
-  default     = "t3a.micro"
-}
-
-# gunicorn variables
-variable "workers" {
-  type        = number
-  description = "Number of workers (processes) for gunicorn. Should be (CPU's *2) + 1) based on CPU's from asg_instance_type"
-  default     = 5
-}
-
-variable "worker_class" {
-  type        = string
-  description = "Type of worker class for gunicorn"
-  default     = "gevent"
-}
-
-variable "worker_connections" {
-  type        = number
-  description = "Number of worker connections (pseudo-threads) per worker for gunicorn. Should be (CPU's *2) + 1) * 1000. based on CPU's from asg_instance_type"
-  default     = 5000
-}
-
-variable "log_dir" {
-  type        = string
-  description = "CTFd log directory"
-  default     = "/var/log/CTFd"
-}
-
-variable "access_log" {
-  type        = string
-  description = "CTFd access log location"
-  default     = "/var/log/CTFd/access.log"
-}
-
-variable "error_log" {
-  type        = string
-  description = "CTFd error log location"
-  default     = "/var/log/CTFd/error.log"
-}
-
-variable "worker_temp_dir" {
-  type        = string
-  description = "temp location for workers"
-  default     = "/dev/shm"
-}
-
 variable "https_certificate_arn" {
   type        = string
   description = "SSL Certificate ARN to be used for the HTTPS server."
-  default     = ""
-}
-
-variable "ctfd_repo" {
-  type        = string
-  description = "Git repository to clone CTFd from"
-  default     = "https://github.com/CTFd/CTFd.git"
-}
-
-variable "ctfd_version" {
-  type        = string
-  description = "Version of CTFd to deploy"
-}
-
-variable "ctfd_overlay" {
-  type        = string
-  default     = "most/certainly/does/not/exist"
-  description = "Path to compressed package to unpack over the top of the CTFd repository. Used to package custom themes and plugins. Must be a gzip compressed tarball"
-}
-
-variable "scripts_dir" {
-  type        = string
-  description = "Where helper scripts are deployed on EC2 instances of CTFd asg"
-  default     = "/opt/ctfd-scripts"
-}
-
-variable "ctfd_dir" {
-  type        = string
-  description = "Where CTFd is cloned to on EC2 instances of CTFd asg"
-  default     = "/opt/ctfd"
-}
-
-variable "allowed_cidr_blocks" {
-  type        = list(any)
-  description = "Cidr blocks allowed to hit the frontend (ALB)"
-  default     = ["0.0.0.0/0"]
-}
-variable "log_bucket" {
-  type        = string
-  description = "Bucket for S3 and ALB log data. Logging disabled if empty"
   default     = ""
 }
 
@@ -257,17 +149,72 @@ variable "create_cdn" {
 }
 
 variable "ctf_domain" {
+  type        = string
   description = "Domain to use for the CTFd deployment. Only used if `create_cdn` is `true`"
   default     = ""
 }
 
 variable "ctf_domain_zone_id" {
+  type        = string
   description = "zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`"
   default     = ""
 }
 
-variable "upload_filesize_limit" {
+variable "registry_server" {
   type        = string
-  description = "Nginx setting `client_max_bosy_size` which limits the max size of any handouts you can upload."
-  default     = "100M"
+  description = "Container registry server. Needed if using a private registry for a custom CTFd image."
+  default     = "registry.gitlab.com"
+}
+
+variable "registry_username" {
+  type        = string
+  description = "Username for container registry. Needed if using a private registry for a custom CTFd image."
+  default     = null
+}
+
+variable "registry_password" {
+  type        = string
+  description = "Password for container registry. Needed if using a private registry for a custom CTFd image."
+  default     = null
+  sensitive   = true
+}
+
+variable "ctfd_image" {
+  type        = string
+  description = "Docker image for the ctfd frontend."
+  default     = "ctfd/ctfd"
+}
+
+variable "eks_users" {
+  description = "Additional AWS users to add to the EKS aws-auth configmap."
+  type = list(object({
+    userarn  = string
+    username = string
+    groups   = list(string)
+  }))
+
+  default = []
+}
+
+variable "create_eks" {
+  type        = bool
+  default     = true
+  description = "Create EKS cluster. If false `k8s_config` needs to be set"
+}
+variable "k8s_backend" {
+  type        = bool
+  default     = false
+  description = "Create DB and cache within kubernetes"
+}
+
+variable "k8s_config" {
+  type        = string
+  default     = ""
+  description = "Kubernetes config file location"
+}
+
+variable "force_destroy_log_bucket" {
+  type        = bool
+  default     = false
+  description = "Whether the S3 bucket containing the logging data should be force destroyed"
 }

@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cache-check
+spec:
+  template:
+    spec:
+      containers:
+      - name: cache-check
+        image: goodsmileduck/redis-cli
+        command: ["/bin/sh","-c"]
+        args: ["redis-cli -h $(echo $CACHE_URL | awk -F '[//[:blank:]:]+' '{print $2}') -p $(echo $CACHE_URL | awk -F '[//[:blank:]:]+' '{print $3}') ping"]
+        env:
+          - name: "CACHE_URL"
+            valueFrom:
+              secretKeyRef:
+                name: "deployment-secrets"
+                key: "redis_connection_string"
+      restartPolicy: Never
+  backoffLimit: 4

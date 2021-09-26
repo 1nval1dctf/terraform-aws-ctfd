@@ -1,49 +1,39 @@
-output "aws_availability_zones" {
-  value = module.test.aws_availability_zones
+output "challenge_bucket_id" {
+  description = "Challenge bucket name"
+  value       = module.test.challenge_bucket_id
 }
 
-output "s3_bucket_name" {
-  description = ""
-  value       = module.test.s3_bucket.bucket
-}
-
-output "s3_bucket_region" {
-  description = ""
-  value       = module.test.s3_bucket.region
+output "log_bucket_id" {
+  description = "Log bucket name"
+  value       = module.test.log_bucket_id
 }
 
 output "vpc_id" {
-  value = module.test.vpc_id
+  value       = module.test.vpc_id
+  description = "VPC ID"
 }
 
 output "private_subnet_ids" {
-  value = module.test.private_subnet_ids
+  value       = module.test.private_subnet_ids
+  description = "VPC private subnet IDs"
 }
 
 output "public_subnet_ids" {
-  value = module.test.public_subnet_ids
-}
-
-output "elasticache_cluster_id" {
-  value = module.test.elasticache_cluster_id
-}
-
-output "rds_endpoint_address" {
-  value = module.test.rds_endpoint_address
-}
-
-output "rds_id" {
-  value = module.test.rds_id
-}
-
-output "rds_port" {
-  value = module.test.rds_port
-}
-
-output "rds_password" {
-  value = module.test.rds_password
+  value       = module.test.public_subnet_ids
+  description = "VPC public subnet IDs"
 }
 
 output "lb_dns_name" {
-  value = module.test.lb_dns_name
+  value       = module.test.lb_dns_name
+  description = "DNS name for the Load Balancer"
+}
+
+output "ctfd_connection_string" {
+  value       = "http://${module.test.lb_dns_name}:${module.test.lb_port}"
+  description = "URL for CTFd"
+}
+
+output "kubeconfig" {
+  description = "kubectl config file contents for this EKS cluster."
+  value       = module.test.kubeconfig
 }
