@@ -160,6 +160,52 @@ resource "kubernetes_deployment" "ctfd" {
             initial_delay_seconds = 20
           }
         }
+        container {
+          name  = "frontend-access-logs"
+          image = "busybox"
+          args = [
+            "/bin/sh",
+            "-c",
+            "tail -n+1 -f ${local.access_log}"
+          ]
+          volume_mount {
+            mount_path = local.log_dir
+            name       = "logs"
+          }
+          resources {
+            limits = {
+              cpu    = "1"
+              memory = "1Gi"
+            }
+            requests = {
+              cpu    = "0.2"
+              memory = "128Mi"
+            }
+          }
+        }
+        container {
+          name  = "frontend-error-logs"
+          image = "busybox"
+          args = [
+            "/bin/sh",
+            "-c",
+            "tail -n+1 -f ${local.error_log}"
+          ]
+          volume_mount {
+            mount_path = local.log_dir
+            name       = "logs"
+          }
+          resources {
+            limits = {
+              cpu    = "1"
+              memory = "1Gi"
+            }
+            requests = {
+              cpu    = "0.2"
+              memory = "128Mi"
+            }
+          }
+        }
         volume {
           name = "logs"
           persistent_volume_claim {
