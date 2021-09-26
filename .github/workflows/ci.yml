@@ -50,8 +50,10 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-go@v2
     - name: Go format
+      working-directory: ./test
       run: go fmt
     - name: Go mod tidy
+      working-directory: ./test
       run: go mod tidy
   docs:
     runs-on: ubuntu-latest
