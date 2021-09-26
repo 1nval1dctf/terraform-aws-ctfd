@@ -6,7 +6,7 @@ on:
     - cron: 0 0 * * 5
 
 jobs:
-  docs:
+  terraform_validation:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -14,7 +14,6 @@ jobs:
         ref: ${{ github.event.pull_request.head.ref }}
 
     - uses: hashicorp/setup-terraform@v1
-
     - name: Terraform fmt
       id: fmt
       run: terraform fmt -check
@@ -28,10 +27,38 @@ jobs:
       id: validate
       run: terraform validate -no-color
 
-    - name: Terraform Plan
-      id: plan
-      run: terraform plan -no-color
-      continue-on-error: true
+    - uses: actions/cache@v2
+      name: Cache plugin dir
+      with:
+        path: ~/.tflint.d/plugins
+        key: ${{ matrix.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
+
+    - uses: terraform-linters/setup-tflint@v1
+      name: Setup TFLint
+
+    - name: Show version
+      run: tflint --version
+
+    - name: Init TFLint
+      run: tflint --init
+
+    - name: Run TFLint
+      run: tflint -f compact
+  go_validation:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+    - name: Go format
+      run: go fmt
+    - name: Go mod tidy
+      run: go mod tidy
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
 
     - name: Render terraform docs and push changes back to PR
       uses: terraform-docs/gh-actions@main
