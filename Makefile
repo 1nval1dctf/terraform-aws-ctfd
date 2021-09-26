@@ -50,7 +50,7 @@ init_modules:
 		pushd $$MODULE && terraform init -upgrade -input=false -backend=false && popd; \
 	done
 
-pre-commit: pre-commit-check clean init_all terrascan-init tflint-init 
+pre-commit: pre-commit-check clean init_all terrascan-init tflint-init
 	pre-commit run -a
 
 pre-commit-check:
@@ -66,4 +66,3 @@ terrascan-init:
 ## Clean up files
 clean:
 	$(if $(shell find . -type d -name ".terraform" -print0),find . -type d -name ".terraform" -print0 | xargs -0 rm -r,)
-	

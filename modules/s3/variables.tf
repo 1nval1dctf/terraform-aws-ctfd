@@ -15,4 +15,3 @@ variable "s3_encryption_key_arn" {
   description = "Encryption key for use with S3 bucket at-rest encryption. Unencrypted if this is empty."
   default     = ""
 }
-

@@ -12,7 +12,7 @@ terraform {
   }
 }
 
-# Create a subnet group with all of our RDS subnets. The group will be applied to the database cluster.  
+# Create a subnet group with all of our RDS subnets. The group will be applied to the database cluster.
 resource "aws_db_subnet_group" "default" {
   name        = "${var.db_cluster_name}-db-subnet"
   subnet_ids  = var.private_subnet_ids

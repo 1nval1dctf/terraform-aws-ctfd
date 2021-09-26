@@ -8,8 +8,7 @@ steps:
 - script: python -m pip install --upgrade pip pre-commit
   displayName: 'Install pre-commit'
 
-steps:
-- script: python -m pip install --upgrade pip checkov 
+- script: python -m pip install --upgrade pip checkov
   displayName: 'Install checkov'
 
 - script: |

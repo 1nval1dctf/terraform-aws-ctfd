@@ -12,10 +12,9 @@ spec:
         args: ["redis-cli -h $(echo $CACHE_URL | awk -F '[//[:blank:]:]+' '{print $2}') -p $(echo $CACHE_URL | awk -F '[//[:blank:]:]+' '{print $3}') ping"]
         env:
           - name: "CACHE_URL"
-            valueFrom: 
-              secretKeyRef: 
+            valueFrom:
+              secretKeyRef:
                 name: "deployment-secrets"
                 key: "redis_connection_string"
       restartPolicy: Never
   backoffLimit: 4
- 

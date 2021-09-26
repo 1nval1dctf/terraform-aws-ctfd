@@ -5,7 +5,7 @@ repos:
     - id: terraform_fmt
     - id: terraform_docs
     - id: terraform_validate
-      args: 
+      args:
       - '--envs=AWS_DEFAULT_REGION="us-east-1"'
     - id: terraform_tflint
       args:
@@ -18,4 +18,16 @@ repos:
   rev: v0.4.0
   hooks:
     - id: go-fmt
-    - id: go-mod-tidy  
+    - id: go-mod-tidy
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  rev: v4.0.1
+  hooks:
+    - id: check-json
+    - id: check-yaml
+    - id: pretty-format-json
+    - id: detect-aws-credentials
+    - id: end-of-file-fixer
+    - id: detect-private-key
+    - id: mixed-line-ending
+    - id: sort-simple-yaml
+    - id: trailing-whitespace

@@ -2,7 +2,7 @@
 
 ### Install prerequisites
 
-#### Golang 
+#### Golang
 
 ```bash
 wget https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
