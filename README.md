@@ -117,16 +117,12 @@ flowchart TB
 | Name | Description |
 |------|-------------|
 | <a name="output_challenge_bucket_id"></a> [challenge\_bucket\_id](#output\_challenge\_bucket\_id) | Challenge bucket name |
-| <a name="output_db_password"></a> [db\_password](#output\_db\_password) | Generated password for the database |
-| <a name="output_elasticache_cluster_id"></a> [elasticache\_cluster\_id](#output\_elasticache\_cluster\_id) | Id of the ElastiCache cluster |
+| <a name="output_kubeconfig"></a> [kubeconfig](#output\_kubeconfig) | kubectl config file contents for this EKS cluster. |
 | <a name="output_lb_dns_name"></a> [lb\_dns\_name](#output\_lb\_dns\_name) | DNS name for the Load Balancer |
 | <a name="output_lb_port"></a> [lb\_port](#output\_lb\_port) | Port that CTFd is reachable on |
 | <a name="output_log_bucket_id"></a> [log\_bucket\_id](#output\_log\_bucket\_id) | Logging bucket name |
 | <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | List of private subnets that contain backend infrastructure (RDS, ElastiCache, EC2) |
 | <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | List of public subnets that contain frontend infrastructure (ALB) |
-| <a name="output_rds_endpoint_address"></a> [rds\_endpoint\_address](#output\_rds\_endpoint\_address) | Endpoint address for RDS |
-| <a name="output_rds_id"></a> [rds\_id](#output\_rds\_id) | Id of RDS cluster |
-| <a name="output_rds_port"></a> [rds\_port](#output\_rds\_port) | Port for RDS |
 | <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | Id for the VPC created for CTFd |
 
 ## Examples

@@ -33,28 +33,7 @@ output "public_subnet_ids" {
   description = "List of public subnets that contain frontend infrastructure (ALB)"
 }
 
-output "elasticache_cluster_id" {
-  value       = var.create_eks ? module.elasticache[0].elasticache_cluster_id : null
-  description = "Id of the ElastiCache cluster"
-}
-
-output "rds_endpoint_address" {
-  value       = var.create_eks ? module.rds[0].rds_endpoint_address : null
-  description = "Endpoint address for RDS"
-}
-
-output "rds_id" {
-  value       = var.create_eks ? module.rds[0].rds_id : null
-  description = "Id of RDS cluster"
-}
-
-output "rds_port" {
-  value       = var.create_eks ? module.rds[0].rds_port : null
-  description = "Port for RDS"
-}
-
-output "db_password" {
-  value       = var.k8s_backend ? module.k8s[0].db_password : module.rds[0].rds_password
-  description = "Generated password for the database"
-  sensitive   = true
+output "kubeconfig" {
+  description = "kubectl config file contents for this EKS cluster."
+  value       = var.create_eks ? module.eks[0].kubeconfig : null
 }

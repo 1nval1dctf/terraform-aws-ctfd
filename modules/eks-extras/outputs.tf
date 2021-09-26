@@ -1,4 +1,3 @@
-
 output "ctfd_uploads_persistent_volume" {
   value       = kubernetes_persistent_volume.ctfd_uploads
   description = "Persistent volume for CTFd uploads"

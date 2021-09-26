@@ -23,48 +23,17 @@ output "public_subnet_ids" {
   description = "VPC public subnet IDs"
 }
 
-output "elasticache_cluster_id" {
-  value       = module.test.elasticache_cluster_id
-  description = "Elasticache cluster ID"
-}
-
-output "rds_endpoint_address" {
-  value       = module.test.rds_endpoint_address
-  description = "RDS enpoint"
-}
-
-output "rds_id" {
-  value       = module.test.rds_id
-  description = "RDS ID"
-}
-
-output "rds_port" {
-  value       = module.test.rds_port
-  description = "RDS Port"
-}
-
-output "rds_password" {
-  value       = module.test.db_password
-  sensitive   = true
-  description = "Generated password for the database"
-}
-
 output "lb_dns_name" {
   value       = module.test.lb_dns_name
   description = "DNS name for the Load Balancer"
-}
-
-output "lb_port" {
-  value       = module.test.lb_port
-  description = "Port that CTFd is reachable on"
 }
 
 output "ctfd_connection_string" {
   value       = "http://${module.test.lb_dns_name}:${module.test.lb_port}"
   description = "URL for CTFd"
 }
-output "db_password" {
-  value       = module.test.db_password
-  sensitive   = true
-  description = "Generated password for the database"
+
+output "kubeconfig" {
+  description = "kubectl config file contents for this EKS cluster."
+  value       = module.test.kubeconfig
 }

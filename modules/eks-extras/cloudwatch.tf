@@ -35,6 +35,7 @@ resource "aws_iam_role_policy_attachment" "fluent_bit" {
   policy_arn = aws_iam_policy.fluent_bit.arn
   role       = var.fargate_pod_execution_role_name
 }
+
 resource "kubernetes_config_map" "aws_logging" {
   metadata {
     name      = "aws-logging"

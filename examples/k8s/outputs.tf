@@ -7,9 +7,3 @@ output "lb_port" {
   value       = module.ctfd.lb_port
   description = "Port that CTFd is reachable on"
 }
-
-output "db_password" {
-  value       = module.ctfd.db_password
-  sensitive   = true
-  description = "Generated password for the database"
-}

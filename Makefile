@@ -10,7 +10,7 @@ TEST_FIXTURES := $(wildcard test/*/.)
 
 .PHONY: all
 ## Default target
-all: test
+all: test pre-commit
 
 .PHONY : init_all
 init_all: init init_examples init_tests init_modules

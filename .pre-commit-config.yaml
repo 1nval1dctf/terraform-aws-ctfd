@@ -14,4 +14,8 @@ repos:
     #- id: terraform_tfsec
     #- id: checkov
     #- id: terrascan
-    
+- repo: git://github.com/dnephin/pre-commit-golang
+  rev: v0.4.0
+  hooks:
+    - id: go-fmt
+    - id: go-mod-tidy  
