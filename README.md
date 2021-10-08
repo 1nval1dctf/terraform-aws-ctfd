@@ -149,7 +149,6 @@ module "ctfd" {
   elasticache_cluster_instances     = 2
   db_engine_mode                    = "serverless"
 }
-
 ```
 
 ### K8s Example
@@ -167,7 +166,6 @@ module "ctfd" {
   k8s_config  = "~/.kube/config"
   create_eks  = false
 }
-
 ```
 
 ## Building / Contributing
