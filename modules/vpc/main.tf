@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.59"
+      version = "4.52.0"
     }
   }
 }
@@ -14,7 +14,7 @@ data "aws_availability_zones" "available" {}
 # Create a VPC to launch our instances into
 module "vpc" {
   source               = "terraform-aws-modules/vpc/aws"
-  version              = "3.7.0"
+  version              = "3.19.0"
   name                 = "${var.app_name}-vpc"
   cidr                 = var.vpc_cidr_block
   azs                  = data.aws_availability_zones.available.names
@@ -24,16 +24,4 @@ module "vpc" {
   enable_dns_support   = true
   enable_nat_gateway   = true
   single_nat_gateway   = true
-
-  vpc_tags = {
-    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
-  }
-  public_subnet_tags = {
-    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
-    "kubernetes.io/role/elb"                        = "1"
-  }
-  private_subnet_tags = {
-    "kubernetes.io/cluster/${var.eks_cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"               = "1"
-  }
 }

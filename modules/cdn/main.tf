@@ -15,14 +15,16 @@ locals {
     forward_cookies             = "none"
     forward_header_values       = [] # will cache everything
     lambda_function_association = []
+    function_association        = []
     cache_policy_id             = ""
     origin_request_policy_id    = ""
+    response_headers_policy_id  = ""
   }
 }
 
 module "cdn" {
   source                          = "cloudposse/cloudfront-cdn/aws"
-  version                         = "0.21.3"
+  version                         = "0.25.0"
   attributes                      = [var.app_name]
   aliases                         = var.ctf_domain != "" ? [var.ctf_domain] : []
   origin_domain_name              = var.origin_domain_name

@@ -32,8 +32,3 @@ output "ctfd_connection_string" {
   value       = "http://${module.test.lb_dns_name}:${module.test.lb_port}"
   description = "URL for CTFd"
 }
-
-output "kubeconfig" {
-  description = "kubectl config file contents for this EKS cluster."
-  value       = module.test.kubeconfig
-}

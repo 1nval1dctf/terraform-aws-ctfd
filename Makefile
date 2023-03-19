@@ -18,12 +18,12 @@ init_all: init init_examples init_tests init_modules
 .PHONY : test
 ## Run tests
 test: init_tests
-	cd $(TESTDIR) && go test -v -timeout 10m -run TestK3s
+	pushd $(TESTDIR) && go test -v -timeout 10m -run TestDocker && popd
 
 .PHONY : test_aws
 ## Run tests
 test_aws: init_tests
-	cd $(TESTDIR) && go test -v -timeout 40m -run TestAws
+	pushd $(TESTDIR) && go test -v -timeout 40m -run TestAws && popd
 
 .PHONY : init
 init:
@@ -50,9 +50,11 @@ init_modules:
 		pushd $$MODULE && terraform init -upgrade -input=false -backend=false && popd; \
 	done
 
+.PHONY : pre-commit
 pre-commit: pre-commit-check clean init_all terrascan-init tflint-init
 	pre-commit run -a
 
+.PHONY : pre-commit-check
 pre-commit-check:
 	$(if $(shell command -v pre-commit 2> /dev/null),,$(error pre-commit is required but not found, please follow https://github.com/antonbabenko/pre-commit-terraform#how-to-install)`)
 

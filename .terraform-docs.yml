@@ -25,10 +25,10 @@ content: |-
   {{ include "examples/simple/main.tf" }}
   ```
 
-  ### K8s Example
+  ### Docker Example
 
   ```hcl
-  {{ include "examples/k8s/main.tf" }}
+  {{ include "examples/docker/main.tf" }}
   ```
 
   {{ .Footer }}

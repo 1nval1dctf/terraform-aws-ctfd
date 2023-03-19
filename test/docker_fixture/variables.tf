@@ -1,3 +1,8 @@
+variable "ctfd_image" {
+  type        = string
+  description = "Docker image for the ctfd frontend."
+  default     = "ctfd/ctfd"
+}
 
 variable "registry_server" {
   type        = string

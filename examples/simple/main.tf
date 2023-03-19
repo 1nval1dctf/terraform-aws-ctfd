@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.59"
+      version = "4.52.0"
     }
   }
 }
@@ -17,5 +17,5 @@ module "ctfd" {
   db_deletion_protection            = false
   elasticache_cluster_instance_type = "cache.t2.micro"
   elasticache_cluster_instances     = 2
-  db_engine_mode                    = "serverless"
+  db_serverless                     = true
 }

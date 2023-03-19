@@ -14,12 +14,6 @@ variable "private_subnet_ids" {
   description = "List of private subnet ids"
 }
 
-variable "elasticache_cluster_id" {
-  type        = string
-  description = "Id to assign the new ElastiCache cluster"
-  default     = "ctfd-cache-cluster"
-}
-
 variable "elasticache_cluster_instances" {
   type        = number
   description = "Number of instances in ElastiCache cluster"

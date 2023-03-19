@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.59"
+      version = "4.52.0"
     }
   }
 }
@@ -46,11 +46,6 @@ data "aws_iam_policy_document" "s3_full_access" {
 #tfsec:ignore:AWS002
 resource "aws_s3_bucket" "challenge_bucket" {
   force_destroy = var.force_destroy_challenge_bucket
-  acl           = "private"
-
-  versioning {
-    enabled = true
-  }
 
   dynamic "server_side_encryption_configuration" {
     for_each = var.s3_encryption_key_arn != "" ? [1] : []
@@ -63,10 +58,24 @@ resource "aws_s3_bucket" "challenge_bucket" {
       }
     }
   }
+}
 
-  logging {
-    target_bucket = aws_s3_bucket.log_bucket.id
-    target_prefix = "logs/"
+resource "aws_s3_bucket_logging" "challenge_bucket" {
+  bucket = aws_s3_bucket.challenge_bucket.id
+
+  target_bucket = aws_s3_bucket.log_bucket.id
+  target_prefix = "logs/"
+}
+
+resource "aws_s3_bucket_acl" "challenge_bucket" {
+  bucket = aws_s3_bucket.challenge_bucket.id
+  acl    = "private"
+}
+
+resource "aws_s3_bucket_versioning" "challenge_bucket" {
+  bucket = aws_s3_bucket.challenge_bucket.id
+  versioning_configuration {
+    status = "Enabled"
   }
 }
 
@@ -89,11 +98,6 @@ resource "aws_s3_bucket_public_access_block" "challenge_bucket" {
 #tfsec:ignore:AWS002
 resource "aws_s3_bucket" "log_bucket" {
   force_destroy = var.force_destroy_log_bucket
-  acl           = "log-delivery-write"
-
-  versioning {
-    enabled = true
-  }
 
   dynamic "server_side_encryption_configuration" {
     for_each = var.s3_encryption_key_arn != "" ? [1] : []
@@ -106,4 +110,15 @@ resource "aws_s3_bucket" "log_bucket" {
       }
     }
   }
+}
+resource "aws_s3_bucket_versioning" "log_bucket" {
+  bucket = aws_s3_bucket.log_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "log_bucket" {
+  bucket = aws_s3_bucket.log_bucket.id
+  acl    = "log-delivery-write"
 }
