@@ -3,29 +3,21 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "3.59.0"
-    }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "2.3.0"
-    }
-    kubectl = {
-      source  = "gavinbunney/kubectl"
-      version = ">= 1.9.4"
-    }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.3"
+      version = "4.52.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.1"
+      version = "3.4.3"
+    }
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.1"
     }
   }
 }
 
 module "vpc" {
-  count    = var.create_eks ? 1 : 0
+  count    = var.create_in_aws ? 1 : 0
   source   = "./modules/vpc"
   app_name = var.app_name
 }
@@ -36,15 +28,14 @@ resource "random_password" "ctfd_secret_key" {
 }
 
 module "rds" {
-  count                      = var.k8s_backend ? 0 : 1
+  count                      = var.create_in_aws ? 1 : 0
   source                     = "./modules/rds"
+  app_name                   = var.app_name
   vpc_id                     = module.vpc[0].vpc_id
   private_subnet_ids         = module.vpc[0].private_subnet_ids
-  db_cluster_instances       = var.db_cluster_instances
-  db_cluster_name            = var.db_cluster_name
   db_cluster_instance_type   = var.db_cluster_instance_type
   db_engine                  = var.db_engine
-  db_engine_mode             = var.db_engine_mode
+  db_serverless              = var.db_serverless
   db_engine_version          = var.db_engine_version
   db_port                    = var.db_port
   db_user                    = var.db_user
@@ -54,52 +45,42 @@ module "rds" {
   db_serverless_min_capacity = var.db_serverless_min_capacity
   db_serverless_max_capacity = var.db_serverless_max_capacity
   rds_encryption_key_arn     = var.rds_encryption_key_arn
+  character_set              = var.db_character_set
+  collation                  = var.db_collation
 }
 
 module "elasticache" {
-  count                             = var.k8s_backend ? 0 : 1
+  count                             = var.create_in_aws ? 1 : 0
   source                            = "./modules/elasticache"
+  app_name                          = var.app_name
   vpc_id                            = module.vpc[0].vpc_id
   private_subnet_ids                = module.vpc[0].private_subnet_ids
-  elasticache_cluster_id            = var.elasticache_cluster_id
   elasticache_cluster_instances     = var.elasticache_cluster_instances
   elasticache_cluster_instance_type = var.elasticache_cluster_instance_type
   elasticache_cluster_port          = var.elasticache_cluster_port
   elasticache_encryption_key_arn    = var.elasticache_encryption_key_arn
 }
 
-module "eks" {
-  count                           = var.create_eks ? 1 : 0
-  source                          = "./modules/eks"
-  vpc_id                          = module.vpc[0].vpc_id
-  private_subnet_ids              = module.vpc[0].private_subnet_ids
-  public_subnet_ids               = module.vpc[0].public_subnet_ids
-  eks_users                       = var.eks_users
-  eks_namespace                   = local.namespace
-  fargate_pod_execution_role_name = local.fargate_pod_execution_role_name
+module "ecs" {
+  count                            = var.create_in_aws ? 1 : 0
+  source                           = "./modules/ecs"
+  vpc_id                           = module.vpc[0].vpc_id
+  private_subnet_ids               = module.vpc[0].private_subnet_ids
+  public_subnet_ids                = module.vpc[0].public_subnet_ids
+  ctfd_image                       = var.ctfd_image
+  db_connection_string             = module.rds[0].db_connection_string
+  cache_connection_string          = module.elasticache[0].cache_connection_string
+  ctfd_secret_key                  = random_password.ctfd_secret_key.result
+  registry_username                = var.registry_username
+  registry_password                = var.registry_password
+  challenge_bucket                 = module.s3[0].challenge_bucket.arn
+  frontend_desired_count           = var.frontend_desired_count
+  frontend_minimum_healthy_percent = var.frontend_minimum_healthy_percent
+  frontend_maximum_percent         = var.frontend_maximum_percent
 }
-
-module "eks_extras" {
-  count                           = var.create_eks ? 1 : 0
-  source                          = "./modules/eks-extras"
-  vpc_id                          = module.vpc[0].vpc_id
-  eks_cluster_id                  = module.eks[0].eks_cluster_id
-  private_subnet_ids              = module.vpc[0].private_subnet_ids
-  cluster_oidc_issuer_url         = module.eks[0].cluster_oidc_issuer_url
-  oidc_provider_arn               = module.eks[0].oidc_provider_arn
-  fargate_profile_ids             = module.eks[0].fargate_profile_ids
-  fargate_pod_execution_role_name = module.eks[0].fargate_iam_role_name
-  depends_on = [
-    module.eks[0].fargate_profile_ids,
-    module.eks[0],
-    module.vpc[0]
-  ]
-}
-
-
 
 module "s3" {
-  count                          = var.create_eks ? 1 : 0
+  count                          = var.create_in_aws ? 1 : 0
   source                         = "./modules/s3"
   force_destroy_challenge_bucket = var.force_destroy_challenge_bucket
   s3_encryption_key_arn          = var.s3_encryption_key_arn
@@ -107,18 +88,20 @@ module "s3" {
 }
 
 module "cdn" {
-  count                 = var.create_eks ? var.create_cdn ? 1 : 0 : 0
+  count                 = var.create_in_aws ? var.create_cdn ? 1 : 0 : 0
   source                = "./modules/cdn"
   ctf_domain            = var.ctf_domain
   app_name              = var.app_name
   ctf_domain_zone_id    = var.ctf_domain_zone_id
   https_certificate_arn = var.https_certificate_arn
   log_bucket            = module.s3[0].log_bucket.arn
-  origin_domain_name    = kubernetes_service.ctfd_web.status[0].load_balancer[0].ingress[0].hostname
+  origin_domain_name    = var.create_in_aws ? module.ecs[0].lb_dns_name : ""
 }
 
-module "k8s" {
-  count     = var.k8s_backend ? 1 : 0
-  source    = "./modules/k8s"
-  namespace = local.namespace
+module "docker" {
+  count            = var.create_in_aws ? 0 : 1
+  source           = "./modules/docker"
+  ctfd_image       = var.ctfd_image
+  db_character_set = var.db_character_set
+  db_collation     = var.db_collation
 }

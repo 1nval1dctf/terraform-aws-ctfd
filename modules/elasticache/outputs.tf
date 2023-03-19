@@ -1,8 +1,3 @@
-output "elasticache_cluster_id" {
-  value       = aws_elasticache_replication_group.default.id
-  description = "Id of the ElastiCache cluster"
-}
-
 output "elasticache_security_group_id" {
   value       = aws_security_group.elasticache.id
   description = "ID of security group associated with the elasticache"

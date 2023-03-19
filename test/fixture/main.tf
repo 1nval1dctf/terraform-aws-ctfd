@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.59"
+      version = "4.52.0"
     }
   }
 }
@@ -19,6 +19,10 @@ module "test" {
   db_deletion_protection            = false
   elasticache_cluster_instances     = 2
   elasticache_cluster_instance_type = "cache.t3.micro"
-  db_engine_mode                    = "serverless"
+  db_serverless                     = true
   db_skip_final_snapshot            = true
+  registry_server                   = var.registry_server
+  registry_username                 = var.registry_username
+  registry_password                 = var.registry_password
+  ctfd_image                        = var.ctfd_image
 }

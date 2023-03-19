@@ -1,6 +1,6 @@
 repos:
-- repo: git://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.51.0
+- repo: https://github.com/antonbabenko/pre-commit-terraform
+  rev: v1.77.0
   hooks:
     - id: terraform_fmt
     - id: terraform_docs
@@ -14,13 +14,13 @@ repos:
     #- id: terraform_tfsec
     #- id: checkov
     #- id: terrascan
-- repo: git://github.com/dnephin/pre-commit-golang
-  rev: v0.4.0
+- repo: https://github.com/dnephin/pre-commit-golang
+  rev: v0.5.1
   hooks:
     - id: go-fmt
     - id: go-mod-tidy
-- repo: git://github.com/pre-commit/pre-commit-hooks
-  rev: v4.0.1
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
   hooks:
     - id: check-json
     - id: check-yaml

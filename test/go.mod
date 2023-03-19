@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	cloud.google.com/go v0.75.0 // indirect
-	github.com/aws/aws-sdk-go v1.38.28
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/go-logr/logr v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
@@ -27,6 +26,5 @@ require (
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/apimachinery v0.19.3
 	k8s.io/utils v0.0.0-20210111153108-fddb29f9d009 // indirect
 )

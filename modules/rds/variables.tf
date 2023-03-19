@@ -10,21 +10,21 @@ variable "private_subnet_ids" {
   default     = []
 }
 
-variable "db_cluster_instances" {
-  type        = number
-  description = "Number of instances to create in the RDS cluster. Only used if db_engine_mode set to `provisioned`"
-  default     = 1
+variable "app_name" {
+  type        = string
+  default     = "ctfd"
+  description = "Name of application (eg: \"ctfd\")"
 }
 
-variable "db_cluster_name" {
-  type        = string
-  description = "Name of the created RDS cluster"
-  default     = "ctfd-db-cluster"
+variable "db_serverless" {
+  type        = bool
+  description = "Configure serverless RDS cluster"
+  default     = true
 }
 
 variable "db_cluster_instance_type" {
   type        = string
-  description = "Type of instances to create in the RDS cluster. Only used if db_engine_mode set to `provisioned`"
+  description = "Type of instances to create in the RDS cluster. Only used if db_serverless set to `false`"
   default     = "db.r5.large"
 }
 
@@ -34,22 +34,16 @@ variable "db_engine" {
   default     = "aurora-mysql"
 }
 
-variable "db_engine_mode" {
-  type        = string
-  description = "Engine mode the RDS cluster, can be `provisioned` or `serverless`"
-  default     = "serverless"
-}
-
 variable "db_engine_version" {
   type        = string
   description = "Engine version for the RDS cluster"
-  default     = "5.7.mysql_aurora.2.07.1"
+  default     = "8.0.mysql_aurora.3.02.2"
 }
 
 variable "db_engine_family" {
   type        = string
   description = "Family for the RDS cluster"
-  default     = "aurora-mysql5.7"
+  default     = "aurora-mysql8.0"
 }
 
 variable "db_port" {
@@ -84,13 +78,13 @@ variable "db_skip_final_snapshot" {
 
 variable "db_serverless_min_capacity" {
   type        = number
-  description = "Minimum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`"
+  description = "Minimum capacity for serverless RDS. Only used if db_serverless set to `true`"
   default     = 1
 }
 
 variable "db_serverless_max_capacity" {
   type        = number
-  description = "Maximum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`"
+  description = "Maximum capacity for serverless RDS. Only used if db_serverless set to `true`"
   default     = 128
 }
 

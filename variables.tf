@@ -16,12 +16,6 @@ variable "force_destroy_challenge_bucket" {
   description = "Whether the S3 bucket containing the CTFD challenge data should be force destroyed"
 }
 
-variable "elasticache_cluster_id" {
-  type        = string
-  description = "Id to assign the new ElastiCache cluster"
-  default     = "ctfd-cache-cluster"
-}
-
 variable "elasticache_cluster_instances" {
   type        = number
   description = "Number of instances in ElastiCache cluster"
@@ -41,21 +35,15 @@ variable "elasticache_cluster_port" {
 }
 
 # RDS configuration
-variable "db_cluster_instances" {
-  type        = number
-  description = "Number of instances to create in the RDS cluster. Only used if db_engine_mode set to `provisioned`"
-  default     = 1
-}
-
-variable "db_cluster_name" {
-  type        = string
-  description = "Name of the created RDS cluster"
-  default     = "ctfd-db-cluster"
+variable "db_serverless" {
+  type        = bool
+  description = "Configure serverless RDS cluster"
+  default     = true
 }
 
 variable "db_cluster_instance_type" {
   type        = string
-  description = "Type of instances to create in the RDS cluster. Only used if db_engine_mode set to `provisioned`"
+  description = "Type of instances to create in the RDS cluster. Only used if db_serverless set to `false`"
   default     = "db.r5.large"
 }
 
@@ -65,16 +53,10 @@ variable "db_engine" {
   default     = "aurora-mysql"
 }
 
-variable "db_engine_mode" {
-  type        = string
-  description = "Engine mode the RDS cluster, can be `provisioned` or `serverless`"
-  default     = "serverless"
-}
-
 variable "db_engine_version" {
   type        = string
   description = "Engine version for the RDS cluster"
-  default     = "5.7.mysql_aurora.2.07.1"
+  default     = "8.0.mysql_aurora.3.02.2"
 }
 
 variable "db_port" {
@@ -109,14 +91,26 @@ variable "db_skip_final_snapshot" {
 
 variable "db_serverless_min_capacity" {
   type        = number
-  description = "Minimum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`"
+  description = "Minimum capacity for serverless RDS. Only used if db_serverless set to `true`"
   default     = 1
 }
 
 variable "db_serverless_max_capacity" {
   type        = number
-  description = "Maximum capacity for serverless RDS. Only used if db_engine_mode set to `serverless`"
+  description = "Maximum capacity for serverless RDS. Only used if db_serverless set to `true`"
   default     = 128
+}
+
+variable "db_character_set" {
+  default     = "utf8mb4"
+  type        = string
+  description = "The database character set."
+}
+
+variable "db_collation" {
+  default     = "utf8mb4_bin"
+  type        = string
+  description = "The database collation."
 }
 
 variable "https_certificate_arn" {
@@ -185,32 +179,27 @@ variable "ctfd_image" {
   default     = "ctfd/ctfd"
 }
 
-variable "eks_users" {
-  description = "Additional AWS users to add to the EKS aws-auth configmap."
-  type = list(object({
-    userarn  = string
-    username = string
-    groups   = list(string)
-  }))
-
-  default = []
+variable "frontend_desired_count" {
+  type        = number
+  description = "Desired number of task instances for the frontend service."
+  default     = 2
 }
 
-variable "create_eks" {
+variable "frontend_minimum_healthy_percent" {
+  type        = number
+  description = "Minimum health percent for the frontend service."
+  default     = 75
+}
+variable "frontend_maximum_percent" {
+  type        = number
+  description = " health percent for the frontend service."
+  default     = 150
+}
+
+variable "create_in_aws" {
   type        = bool
   default     = true
-  description = "Create EKS cluster. If false `k8s_config` needs to be set"
-}
-variable "k8s_backend" {
-  type        = bool
-  default     = false
-  description = "Create DB and cache within kubernetes"
-}
-
-variable "k8s_config" {
-  type        = string
-  default     = ""
-  description = "Kubernetes config file location"
+  description = "Create AWS resources. If false an instance will be spun up locally with docker"
 }
 
 variable "force_destroy_log_bucket" {

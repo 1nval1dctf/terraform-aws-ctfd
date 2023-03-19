@@ -69,3 +69,19 @@ jobs:
         output-file: README.md
         git-push: "true"
         config-file: ".terraform-docs.yml"
+  terraform_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-go@v2
+    - uses: hashicorp/setup-terraform@v1
+    - name: Terraform Init
+      id: init
+      working-directory: ./test
+      run: terraform init
+    - name: Fake AWS Credentials
+      id: creds
+      run: mkdir -p ~/.aws && echo "[default]" >> ~/.aws/credentials && echo "aws_access_key_id = 000000000" >> ~/.aws/credentials && echo "aws_secret_access_key = 00000000000000000" >> ~/.aws/credentials
+    - name: Terraform test
+      working-directory: ./test
+      run: go test -v -timeout 10m -run TestDocker
