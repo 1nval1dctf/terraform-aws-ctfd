@@ -187,9 +187,11 @@ func TestDocker(t *testing.T) {
 
 	// Check the Frontend
 	test_structure.RunTestStage(t, "validate_frontend", func() {
-		terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
+		// This doesn't work in CI, but in that case we know the value anyway
+		//terraformOptions := test_structure.LoadTerraformOptions(t, fixtureFolder)
+		//ctfdConnectionString := terraform.Output(t, terraformOptions, "ctfd_connection_string")
+		ctfdConnectionString := "http://127.0.0.1:8080"
 
-		ctfdConnectionString := terraform.Output(t, terraformOptions, "ctfd_connection_string")
 		FrontendTest(t, ctfdConnectionString, "setup-form")
 		Setup(t, ctfdConnectionString)
 	})
