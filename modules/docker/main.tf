@@ -15,6 +15,7 @@ terraform {
 resource "docker_container" "ctfd" {
   name  = "ctfd"
   image = docker_image.ctfd.image_id
+  user  = "root"
   env = [
     "UPLOAD_FOLDER=${local.upload_dir}",
     "DATABASE_URL=mysql+pymysql://${var.db_user}:${random_password.db_password.result}@${docker_container.db.name}/${var.db_name}",
