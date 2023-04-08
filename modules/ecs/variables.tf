@@ -68,6 +68,11 @@ variable "registry_password" {
   sensitive   = true
 }
 
+variable "challenge_bucket_arn" {
+  type        = string
+  default     = null
+  description = "Challenge bucket ARN"
+}
 variable "challenge_bucket" {
   type        = string
   default     = null

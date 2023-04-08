@@ -108,10 +108,6 @@ module "container_definition" {
       value = var.challenge_bucket
     },
     {
-      name  = "CHALLENGE_BUCKET"
-      value = var.challenge_bucket
-    },
-    {
       name  = "ACCESS_LOG"
       value = local.access_log
     },
@@ -171,6 +167,41 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+data "aws_iam_policy_document" "s3_full_access" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      var.challenge_bucket_arn
+    ]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${var.challenge_bucket_arn}/*"
+    ]
+  }
+}
+resource "aws_iam_role" "ecs_task_role" {
+  name               = "ecs-task-role"
+  assume_role_policy = data.aws_iam_policy_document.ecs_task_assume_role.json
+}
+resource "aws_iam_role_policy" "s3_full_access" {
+  name   = "s3_full_access"
+  role   = aws_iam_role.ecs_task_role.name
+  policy = data.aws_iam_policy_document.s3_full_access.json
+}
 
 resource "aws_ecs_task_definition" "ctfd" {
   family                   = var.app_name
@@ -179,6 +210,7 @@ resource "aws_ecs_task_definition" "ctfd" {
   cpu                      = 1024
   memory                   = 2048
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
   container_definitions    = module.container_definition.json_map_encoded_list
   runtime_platform {
     operating_system_family = "LINUX"

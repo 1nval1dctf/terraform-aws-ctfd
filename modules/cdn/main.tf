@@ -42,7 +42,7 @@ module "cdn" {
   compress                        = true
   cached_methods                  = ["GET", "HEAD"]
   price_class                     = "PriceClass_All"
-  log_bucket_fqdn                 = var.log_bucket
+  log_force_destroy               = var.force_destroy_log_bucket
   logging_enabled                 = true
   viewer_minimum_protocol_version = "TLSv1.2_2021"
 

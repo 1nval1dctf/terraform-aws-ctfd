@@ -19,7 +19,7 @@ output "challenge_bucket_id" {
 }
 
 output "log_bucket_id" {
-  value       = var.create_in_aws ? module.s3[0].log_bucket.id : null
+  value       = var.create_in_aws ? var.create_cdn ? module.cdn[0].log_bucket_id : null : null
   description = "Logging bucket name"
 }
 
