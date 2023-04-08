@@ -33,7 +33,7 @@ flowchart TB
 
   LB[ALB] --> Ingress
 
-  subgraph EKS_Fargate[EKS Fargate]
+  subgraph ECS[ECS]
     Ingress --> Service[CTFd service]
     Service --> Instance1[CTFd Instance 1]
     Service --> Instance[CTFd Instance ...]
@@ -48,10 +48,8 @@ flowchart TB
     Instance --> S3Uploads
     InstanceN --> S3Uploads
     end
-  EKS_Fargate --> S3Logs
+  ECS --> S3Logs
 ```
-
-*Note* CTFd does not currently support separate sharding for ElastiCache so the cluster setup is likely overkill for what we get.
 
 
 ## Requirements
