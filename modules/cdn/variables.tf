@@ -23,14 +23,14 @@ variable "https_certificate_arn" {
   default     = null
 }
 
-variable "log_bucket" {
-  type        = string
-  description = "Bucket for S3 and ALB log data."
-  default     = null
-}
-
 variable "origin_domain_name" {
   type        = string
   description = "Domain for load balancer to be used as origin for CDN"
   default     = null
+}
+
+variable "force_destroy_log_bucket" {
+  type        = bool
+  default     = false
+  description = "Whether the S3 bucket containing the logging data should be force destroyed"
 }

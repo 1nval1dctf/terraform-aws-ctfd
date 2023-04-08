@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "s3_full_access" {
 
     principals {
       type        = "Service"
-      identifiers = ["s3.amazonaws.com", "ec2.amazonaws.com"]
+      identifiers = ["ecs.amazonaws.com", "s3.amazonaws.com", "ec2.amazonaws.com"]
     }
   }
 
@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "s3_full_access" {
 
     principals {
       type        = "Service"
-      identifiers = ["s3.amazonaws.com", "ec2.amazonaws.com"]
+      identifiers = ["ecs.amazonaws.com", "s3.amazonaws.com", "ec2.amazonaws.com"]
     }
   }
 }
@@ -58,13 +58,6 @@ resource "aws_s3_bucket" "challenge_bucket" {
       }
     }
   }
-}
-
-resource "aws_s3_bucket_logging" "challenge_bucket" {
-  bucket = aws_s3_bucket.challenge_bucket.id
-
-  target_bucket = aws_s3_bucket.log_bucket.id
-  target_prefix = "logs/"
 }
 
 resource "aws_s3_bucket_acl" "challenge_bucket" {
@@ -92,33 +85,4 @@ resource "aws_s3_bucket_public_access_block" "challenge_bucket" {
   ignore_public_acls      = true
   restrict_public_buckets = true
   depends_on              = [aws_s3_bucket_policy.challenge_bucket]
-}
-
-#tfsec:ignore:AWS017
-#tfsec:ignore:AWS002
-resource "aws_s3_bucket" "log_bucket" {
-  force_destroy = var.force_destroy_log_bucket
-
-  dynamic "server_side_encryption_configuration" {
-    for_each = var.s3_encryption_key_arn != "" ? [1] : []
-    content {
-      rule {
-        apply_server_side_encryption_by_default {
-          kms_master_key_id = var.s3_encryption_key_arn
-          sse_algorithm     = "aws:kms"
-        }
-      }
-    }
-  }
-}
-resource "aws_s3_bucket_versioning" "log_bucket" {
-  bucket = aws_s3_bucket.log_bucket.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_acl" "log_bucket" {
-  bucket = aws_s3_bucket.log_bucket.id
-  acl    = "log-delivery-write"
 }

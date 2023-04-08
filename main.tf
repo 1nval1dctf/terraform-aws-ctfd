@@ -73,7 +73,8 @@ module "ecs" {
   ctfd_secret_key                  = random_password.ctfd_secret_key.result
   registry_username                = var.registry_username
   registry_password                = var.registry_password
-  challenge_bucket                 = module.s3[0].challenge_bucket.arn
+  challenge_bucket                 = module.s3[0].challenge_bucket.id
+  challenge_bucket_arn             = module.s3[0].challenge_bucket.arn
   frontend_desired_count           = var.frontend_desired_count
   frontend_minimum_healthy_percent = var.frontend_minimum_healthy_percent
   frontend_maximum_percent         = var.frontend_maximum_percent
@@ -84,18 +85,17 @@ module "s3" {
   source                         = "./modules/s3"
   force_destroy_challenge_bucket = var.force_destroy_challenge_bucket
   s3_encryption_key_arn          = var.s3_encryption_key_arn
-  force_destroy_log_bucket       = var.force_destroy_log_bucket
 }
 
 module "cdn" {
-  count                 = var.create_in_aws ? var.create_cdn ? 1 : 0 : 0
-  source                = "./modules/cdn"
-  ctf_domain            = var.ctf_domain
-  app_name              = var.app_name
-  ctf_domain_zone_id    = var.ctf_domain_zone_id
-  https_certificate_arn = var.https_certificate_arn
-  log_bucket            = module.s3[0].log_bucket.arn
-  origin_domain_name    = var.create_in_aws ? module.ecs[0].lb_dns_name : ""
+  count                    = var.create_in_aws ? var.create_cdn ? 1 : 0 : 0
+  source                   = "./modules/cdn"
+  ctf_domain               = var.ctf_domain
+  app_name                 = var.app_name
+  ctf_domain_zone_id       = var.ctf_domain_zone_id
+  https_certificate_arn    = var.https_certificate_arn
+  force_destroy_log_bucket = var.force_destroy_log_bucket
+  origin_domain_name       = var.create_in_aws ? module.ecs[0].lb_dns_name : ""
 }
 
 module "docker" {
