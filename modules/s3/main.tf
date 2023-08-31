@@ -60,9 +60,17 @@ resource "aws_s3_bucket" "challenge_bucket" {
   }
 }
 
-resource "aws_s3_bucket_acl" "challenge_bucket" {
+resource "aws_s3_bucket_ownership_controls" "challenge_bucket" {
   bucket = aws_s3_bucket.challenge_bucket.id
-  acl    = "private"
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "challenge_bucket" {
+  depends_on = [aws_s3_bucket_ownership_controls.challenge_bucket]
+  bucket     = aws_s3_bucket.challenge_bucket.id
+  acl        = "private"
 }
 
 resource "aws_s3_bucket_versioning" "challenge_bucket" {
