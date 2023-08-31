@@ -24,7 +24,7 @@ locals {
 
 module "cdn" {
   source                          = "cloudposse/cloudfront-cdn/aws"
-  version                         = "0.25.0"
+  version                         = "1.0.0"
   attributes                      = [var.app_name]
   aliases                         = var.ctf_domain != "" ? [var.ctf_domain] : []
   origin_domain_name              = var.origin_domain_name
