@@ -65,7 +65,7 @@ module "container_definition" {
   container_image          = var.ctfd_image
   container_memory         = 2048
   container_cpu            = 1024
-  readonly_root_filesystem = true
+  readonly_root_filesystem = false
 
   repository_credentials = var.registry_password != null ? { credentialsParameter = aws_secretsmanager_secret_version.registry_creds[0].arn } : null
   log_configuration = {
