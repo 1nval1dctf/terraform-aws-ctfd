@@ -56,15 +56,15 @@ flowchart TB
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 4.52.0 |
-| <a name="requirement_docker"></a> [docker](#requirement\_docker) | 3.0.1 |
-| <a name="requirement_random"></a> [random](#requirement\_random) | 3.4.3 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.7.3 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.36.0 |
+| <a name="requirement_docker"></a> [docker](#requirement\_docker) | 3.0.2 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | 3.6.0 |
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.6.0 |
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -81,7 +81,7 @@ flowchart TB
 | <a name="input_db_collation"></a> [db\_collation](#input\_db\_collation) | The database collation. | `string` | `"utf8mb4_bin"` | no |
 | <a name="input_db_deletion_protection"></a> [db\_deletion\_protection](#input\_db\_deletion\_protection) | If true database will not be able to be deleted without manual intervention | `bool` | `true` | no |
 | <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | Engine for the RDS cluster | `string` | `"aurora-mysql"` | no |
-| <a name="input_db_engine_version"></a> [db\_engine\_version](#input\_db\_engine\_version) | Engine version for the RDS cluster | `string` | `"8.0.mysql_aurora.3.02.2"` | no |
+| <a name="input_db_engine_version"></a> [db\_engine\_version](#input\_db\_engine\_version) | Engine version for the RDS cluster | `string` | `"8.0.mysql_aurora.3.04.1"` | no |
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Name for the database in RDS | `string` | `"ctfd"` | no |
 | <a name="input_db_port"></a> [db\_port](#input\_db\_port) | Port to connect to the RDS cluster on | `number` | `3306` | no |
 | <a name="input_db_serverless"></a> [db\_serverless](#input\_db\_serverless) | Configure serverless RDS cluster | `bool` | `true` | no |
@@ -121,11 +121,11 @@ flowchart TB
 
 ```hcl
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.7.3"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.52.0"
+      version = "5.36.0"
     }
   }
 }
@@ -147,7 +147,7 @@ module "ctfd" {
 
 ```hcl
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.7.3"
 }
 
 module "ctfd" {

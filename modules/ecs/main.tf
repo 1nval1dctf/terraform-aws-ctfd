@@ -1,16 +1,16 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.7.3"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.52.0"
+      version = "5.36.0"
     }
   }
 }
 
 module "ecs" {
   source       = "terraform-aws-modules/ecs/aws"
-  version      = "4.1.3"
+  version      = "5.8.0"
   cluster_name = var.ecs_cluster_name
 
   # Capacity provider
