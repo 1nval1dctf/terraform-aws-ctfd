@@ -60,7 +60,7 @@ data "aws_region" "current" {}
 
 module "container_definition" {
   source                   = "cloudposse/ecs-container-definition/aws"
-  version                  = "0.58.1"
+  version                  = "0.61.1"
   container_name           = var.app_name
   container_image          = var.ctfd_image
   container_memory         = 2048

@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.7.3"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.52.0"
+      version = "5.36.0"
     }
   }
 }
@@ -14,7 +14,7 @@ data "aws_availability_zones" "available" {}
 # Create a VPC to launch our instances into
 module "vpc" {
   source               = "terraform-aws-modules/vpc/aws"
-  version              = "3.19.0"
+  version              = "5.5.2"
   name                 = "${var.app_name}-vpc"
   cidr                 = var.vpc_cidr_block
   azs                  = data.aws_availability_zones.available.names

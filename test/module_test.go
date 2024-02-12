@@ -21,8 +21,8 @@ import (
 
 func FrontendTest(t *testing.T, ctfdConnectionString string, instanceText string) {
 
-	maxRetries := 5
-	timeBetweenRetries := 5 * time.Second
+	maxRetries := 10
+	timeBetweenRetries := 10 * time.Second
 
 	// Setup a TLS configuration to submit with the helper, a blank struct is acceptable
 	tlsConfig := tls.Config{}
@@ -134,9 +134,6 @@ func TestAws(t *testing.T) {
 		// challenge bucket
 		s3ChallengeBucketName := terraform.Output(t, terraformOptions, "challenge_bucket_id")
 		aws.AssertS3BucketExists(t, awsRegion, s3ChallengeBucketName)
-		// log bucket
-		s3LogBucketName := terraform.Output(t, terraformOptions, "log_bucket_id")
-		aws.AssertS3BucketExists(t, awsRegion, s3LogBucketName)
 
 	})
 

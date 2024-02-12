@@ -37,7 +37,7 @@ variable "db_engine" {
 variable "db_engine_version" {
   type        = string
   description = "Engine version for the RDS cluster"
-  default     = "8.0.mysql_aurora.3.02.2"
+  default     = "8.0.mysql_aurora.3.04.1"
 }
 
 variable "db_engine_family" {

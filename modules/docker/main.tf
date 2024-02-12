@@ -1,13 +1,13 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.7.3"
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
-      version = "3.0.1"
+      version = "3.0.2"
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.4.3"
+      version = "3.6.0"
     }
   }
 }
