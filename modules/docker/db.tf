@@ -28,6 +28,7 @@ resource "docker_container" "db" {
   networks_advanced {
     name = docker_network.internal.id
   }
+  network_mode = "bridge"
   restart = "always"
 }
 

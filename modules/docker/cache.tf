@@ -9,6 +9,7 @@ resource "docker_container" "cache" {
   networks_advanced {
     name = docker_network.internal.id
   }
+  network_mode = "bridge"
 }
 
 resource "docker_image" "redis" {

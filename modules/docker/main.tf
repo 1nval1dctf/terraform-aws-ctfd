@@ -37,6 +37,7 @@ resource "docker_container" "ctfd" {
   networks_advanced {
     name = docker_network.internal.id
   }
+  network_mode = "bridge"
 }
 
 resource "docker_image" "ctfd" {
