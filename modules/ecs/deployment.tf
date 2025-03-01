@@ -312,7 +312,7 @@ resource "aws_lb_target_group" "ctfd" {
 }
 
 resource "aws_lb_listener" "http_frontend" {
-  count = var.create_cdn == true || var.https_certificate_arn == null ? 1 : 0
+  count             = var.create_cdn == true || var.https_certificate_arn == null ? 1 : 0
   load_balancer_arn = aws_lb.ctfd.arn
   port              = 80
   protocol          = "HTTP"
@@ -322,7 +322,7 @@ resource "aws_lb_listener" "http_frontend" {
   }
 }
 resource "aws_lb_listener" "https_frontend" {
-  count = var.create_cdn == false && var.https_certificate_arn != null ? 1 : 0
+  count             = var.create_cdn == false && var.https_certificate_arn != null ? 1 : 0
   load_balancer_arn = aws_lb.ctfd.arn
   port              = "443"
   protocol          = "HTTPS"
@@ -365,17 +365,11 @@ resource "aws_appautoscaling_target" "ctfd" {
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
-data "aws_route53_zone" "selected" {
-  count = var.create_cdn == false && var.ctf_domain != null && var.ctf_domain_zone_id != null ? 1 : 0
-  zone_id = var.ctf_domain_zone_id
-}
 
 resource "aws_route53_record" "ctfd" {
-  count = var.create_cdn == false && var.ctf_domain != null && var.ctf_domain_zone_id != null ? 1 : 0
+  count   = var.create_cdn == false && var.ctf_domain != null && var.ctf_domain_zone_id != null ? 1 : 0
   zone_id = var.ctf_domain_zone_id
-  name = var.ctf_domain
-  #name    = trimsuffix(var.ctf_domain, data.aws_route53_zone.selected[0].name)
-  #name    = data.aws_route53_zone.selected[0].name
+  name    = var.ctf_domain
   type    = "A"
   alias {
     name                   = aws_lb.ctfd.dns_name
