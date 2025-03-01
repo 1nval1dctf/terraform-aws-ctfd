@@ -27,3 +27,15 @@ variable "ctfd_image" {
   description = "Docker image for the ctfd frontend."
   default     = "ctfd/ctfd"
 }
+
+variable "ctf_domain" {
+  type        = string
+  description = "Domain to use for the CTFd deployment. Only used if `create_cdn` is `true`"
+  default     = null
+}
+
+variable "ctf_domain_zone_id" {
+  type        = string
+  description = "zone id for the route53 zone for the ctf_domain. Only used if `create_cdn` is `true`"
+  default     = null
+}

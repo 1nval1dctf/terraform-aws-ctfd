@@ -29,7 +29,7 @@ resource "docker_container" "db" {
     name = docker_network.internal.id
   }
   network_mode = "bridge"
-  restart = "always"
+  restart      = "always"
 }
 
 resource "docker_image" "mariadb" {
