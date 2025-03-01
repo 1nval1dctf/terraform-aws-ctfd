@@ -78,6 +78,10 @@ module "ecs" {
   frontend_desired_count           = var.frontend_desired_count
   frontend_minimum_healthy_percent = var.frontend_minimum_healthy_percent
   frontend_maximum_percent         = var.frontend_maximum_percent
+  ctf_domain                       = var.create_cdn ? null : var.ctf_domain
+  ctf_domain_zone_id               = var.create_cdn ? null : var.ctf_domain_zone_id
+  create_cdn                       = var.create_cdn
+  https_certificate_arn            = var.https_certificate_arn
 }
 
 module "s3" {

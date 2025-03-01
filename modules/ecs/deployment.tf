@@ -231,6 +231,14 @@ resource "aws_security_group" "allow_http" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
+  ingress {
+    description      = "HTTPS from Internet"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
 
   egress {
     from_port        = 0
@@ -303,10 +311,24 @@ resource "aws_lb_target_group" "ctfd" {
   }
 }
 
-resource "aws_lb_listener" "listener" {
+resource "aws_lb_listener" "http_frontend" {
+  count = var.create_cdn == true || var.https_certificate_arn == null ? 1 : 0
   load_balancer_arn = aws_lb.ctfd.arn
   port              = 80
   protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ctfd.arn
+  }
+}
+resource "aws_lb_listener" "https_frontend" {
+  count = var.create_cdn == false && var.https_certificate_arn != null ? 1 : 0
+  load_balancer_arn = aws_lb.ctfd.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = var.https_certificate_arn
+
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ctfd.arn
@@ -317,7 +339,7 @@ resource "aws_ecs_service" "ctfd" {
   name            = var.app_name
   cluster         = module.ecs.cluster_id
   task_definition = aws_ecs_task_definition.ctfd.arn
-  depends_on      = [aws_lb_listener.listener, aws_iam_role_policy_attachment.ecs_task_execution_role]
+  depends_on      = [aws_iam_role_policy_attachment.ecs_task_execution_role]
   launch_type     = "FARGATE"
 
   desired_count                      = var.frontend_desired_count
@@ -342,4 +364,22 @@ resource "aws_appautoscaling_target" "ctfd" {
   resource_id        = "service/${var.ecs_cluster_name}/${aws_ecs_service.ctfd.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
+}
+data "aws_route53_zone" "selected" {
+  count = var.create_cdn == false && var.ctf_domain != null && var.ctf_domain_zone_id != null ? 1 : 0
+  zone_id = var.ctf_domain_zone_id
+}
+
+resource "aws_route53_record" "ctfd" {
+  count = var.create_cdn == false && var.ctf_domain != null && var.ctf_domain_zone_id != null ? 1 : 0
+  zone_id = var.ctf_domain_zone_id
+  name = var.ctf_domain
+  #name    = trimsuffix(var.ctf_domain, data.aws_route53_zone.selected[0].name)
+  #name    = data.aws_route53_zone.selected[0].name
+  type    = "A"
+  alias {
+    name                   = aws_lb.ctfd.dns_name
+    zone_id                = aws_lb.ctfd.zone_id
+    evaluate_target_health = true
+  }
 }

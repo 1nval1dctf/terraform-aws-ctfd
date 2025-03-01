@@ -108,3 +108,27 @@ variable "frontend_maximum_count" {
   description = "Maximum number of task instances for the frontend service."
   default     = 4
 }
+
+variable "create_cdn" {
+  type        = bool
+  default     = false
+  description = "Whether to create a cloudfront CDN deployment."
+}
+
+variable "ctf_domain" {
+  type        = string
+  description = "Domain to use for the CTFd deployment. If set along with ctf_domain_zone_id then a route53 entry will be made pointing to the lb"
+  default     = null
+}
+
+variable "ctf_domain_zone_id" {
+  type        = string
+  description = "zone id for the route53 zone for the ctf_domain."
+  default     = null
+}
+
+variable "https_certificate_arn" {
+  type        = string
+  description = "SSL Certificate ARN to be used for the HTTPS server."
+  default     = null
+}

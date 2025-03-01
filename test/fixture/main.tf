@@ -25,4 +25,6 @@ module "test" {
   registry_username                 = var.registry_username
   registry_password                 = var.registry_password
   ctfd_image                        = var.ctfd_image
+  ctf_domain                        = var.ctf_domain
+  ctf_domain_zone_id                = var.ctf_domain_zone_id
 }
