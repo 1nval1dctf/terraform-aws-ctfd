@@ -97,7 +97,7 @@ module "container_definition" {
     },
     {
       name  = "REVERSE_PROXY"
-      value = true
+      value = false
     },
     {
       name  = "UPLOAD_PROVIDER"
