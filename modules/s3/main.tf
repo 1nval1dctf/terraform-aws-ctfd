@@ -45,6 +45,7 @@ data "aws_iam_policy_document" "s3_full_access" {
 #tfsec:ignore:AWS017
 #tfsec:ignore:AWS002
 resource "aws_s3_bucket" "challenge_bucket" {
+  bucket_prefix = "${substr(var.app_name, 0, 36)}-"
   force_destroy = var.force_destroy_challenge_bucket
 
   dynamic "server_side_encryption_configuration" {
@@ -57,6 +58,9 @@ resource "aws_s3_bucket" "challenge_bucket" {
         }
       }
     }
+  }
+  tags = {
+    Name = "${var.app_name} Challenge Bucket"
   }
 }
 

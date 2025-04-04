@@ -8,7 +8,7 @@ resource "aws_cloudwatch_log_group" "ctfd" {
 }
 
 resource "aws_secretsmanager_secret" "database_url" {
-  name                           = "database_url"
+  name                           = "${var.app_name}_database_url"
   force_overwrite_replica_secret = true
   recovery_window_in_days        = 0
 }
@@ -19,7 +19,7 @@ resource "aws_secretsmanager_secret_version" "database_url" {
 }
 
 resource "aws_secretsmanager_secret" "redis_url" {
-  name                           = "redis_url"
+  name                           = "${var.app_name}_redis_url"
   force_overwrite_replica_secret = true
   recovery_window_in_days        = 0
 }
@@ -30,7 +30,7 @@ resource "aws_secretsmanager_secret_version" "redis_url" {
 }
 
 resource "aws_secretsmanager_secret" "ctfd_secret" {
-  name                           = "ctfd_secret"
+  name                           = "${var.app_name}_ctfd_secret"
   force_overwrite_replica_secret = true
   recovery_window_in_days        = 0
 }
@@ -42,7 +42,7 @@ resource "aws_secretsmanager_secret_version" "ctfd_secret" {
 
 resource "aws_secretsmanager_secret" "registry_creds" {
   count                          = var.registry_password != null ? 1 : 0
-  name                           = "registry_creds"
+  name                           = "${var.app_name}_registry_creds"
   force_overwrite_replica_secret = true
   recovery_window_in_days        = 0
 }
@@ -158,11 +158,11 @@ data "aws_iam_policy_document" "ecs_get_secrets" {
   }
 }
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "ecs-staging-execution-role"
+  name               = "${var.app_name}-ecs-staging-execution-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume_role.json
 }
 resource "aws_iam_role_policy" "ecs_get_secrets" {
-  name   = "ecs_get_secrets"
+  name   = "${var.app_name}_ecs_get_secrets"
   role   = aws_iam_role.ecs_task_execution_role.name
   policy = data.aws_iam_policy_document.ecs_get_secrets.json
 }
@@ -198,11 +198,11 @@ data "aws_iam_policy_document" "s3_full_access" {
   }
 }
 resource "aws_iam_role" "ecs_task_role" {
-  name               = "ecs-task-role"
+  name               = "${var.app_name}-ecs-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_assume_role.json
 }
 resource "aws_iam_role_policy" "s3_full_access" {
-  name   = "s3_full_access"
+  name   = "${var.app_name}_s3_full_access"
   role   = aws_iam_role.ecs_task_role.name
   policy = data.aws_iam_policy_document.s3_full_access.json
 }
@@ -223,8 +223,8 @@ resource "aws_ecs_task_definition" "ctfd" {
 }
 
 resource "aws_security_group" "allow_http" {
-  name        = "allow_http"
-  description = "Allow HTTP inbound traffic"
+  name        = "${var.app_name}_allow_http"
+  description = "Allow HTTP inbound traffic for ${var.app_name}"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -253,7 +253,7 @@ resource "aws_security_group" "allow_http" {
   }
 
   tags = {
-    Name = "allow_http"
+    Name = "${var.app_name}_allow_http"
   }
 }
 
@@ -262,8 +262,8 @@ data "aws_vpc" "selected" {
 }
 
 resource "aws_security_group" "alb_to_ecs_service" {
-  name        = "alb_to_ecs_service"
-  description = "Allow inbound traffic from ALB to ECS Service"
+  name        = "${var.app_name}_alb_to_ecs_service"
+  description = "Allow inbound traffic from ALB to ECS Service for ${var.app_name}"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -283,7 +283,7 @@ resource "aws_security_group" "alb_to_ecs_service" {
   }
 
   tags = {
-    Name = "allow_http"
+    Name = "${var.app_name}_allow_http"
   }
 }
 
@@ -302,7 +302,6 @@ resource "aws_lb" "ctfd" {
 }
 
 resource "aws_lb_target_group" "ctfd" {
-  name_prefix = "${var.app_name}-"
   port        = local.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id

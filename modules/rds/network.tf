@@ -4,8 +4,8 @@ data "aws_vpc" "selected" {
 
 # Create an RDS security group.
 resource "aws_security_group" "rds" {
-  name        = "rds_security_group"
-  description = "RDS security group"
+  name        = "${var.app_name}_rds_security_group"
+  description = "RDS security group for ${var.app_name}"
   vpc_id      = var.vpc_id
 
   # Allow connections to db port from the frontend security group
@@ -25,6 +25,6 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    Name = "rds-security-group"
+    Name = "${var.app_name}-rds-security-group"
   }
 }

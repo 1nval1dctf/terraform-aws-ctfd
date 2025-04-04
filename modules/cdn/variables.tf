@@ -7,7 +7,6 @@ variable "ctf_domain" {
 
 variable "app_name" {
   type        = string
-  default     = "ctfd"
   description = "Name of application (ex: \"ctfd\")"
 }
 
