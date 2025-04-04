@@ -64,6 +64,8 @@ module "elasticache" {
 module "ecs" {
   count                            = var.create_in_aws ? 1 : 0
   source                           = "./modules/ecs"
+  app_name                         = var.app_name
+  ecs_cluster_name                 = var.ecs_cluster_name
   vpc_id                           = module.vpc[0].vpc_id
   private_subnet_ids               = module.vpc[0].private_subnet_ids
   public_subnet_ids                = module.vpc[0].public_subnet_ids
@@ -87,6 +89,7 @@ module "ecs" {
 module "s3" {
   count                          = var.create_in_aws ? 1 : 0
   source                         = "./modules/s3"
+  app_name                       = var.app_name
   force_destroy_challenge_bucket = var.force_destroy_challenge_bucket
   s3_encryption_key_arn          = var.s3_encryption_key_arn
 }
