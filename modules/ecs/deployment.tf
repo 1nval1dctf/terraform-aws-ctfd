@@ -108,6 +108,10 @@ module "container_definition" {
       value = var.challenge_bucket
     },
     {
+      name  = "AWS_S3_REGION"
+      value = data.aws_region.current.name
+    },
+    {
       name  = "ACCESS_LOG"
       value = local.access_log
     },
