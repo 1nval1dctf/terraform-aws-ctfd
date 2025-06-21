@@ -27,7 +27,7 @@ jobs:
       id: validate
       run: terraform validate -no-color
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       name: Cache plugin dir
       with:
         path: ~/.tflint.d/plugins
