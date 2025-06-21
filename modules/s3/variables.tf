@@ -1,3 +1,7 @@
+variable "app_name" {
+  type        = string
+  description = "Name of application (eg: \"ctfd\")"
+}
 variable "force_destroy_challenge_bucket" {
   type        = bool
   default     = false
