@@ -89,6 +89,7 @@ flowchart TB
 | <a name="input_db_serverless_min_capacity"></a> [db\_serverless\_min\_capacity](#input\_db\_serverless\_min\_capacity) | Minimum capacity for serverless RDS. Only used if db\_serverless set to `true` | `number` | `1` | no |
 | <a name="input_db_skip_final_snapshot"></a> [db\_skip\_final\_snapshot](#input\_db\_skip\_final\_snapshot) | If true database will not be snapshoted before deletion. | `bool` | `false` | no |
 | <a name="input_db_user"></a> [db\_user](#input\_db\_user) | Username for the RDS database | `string` | `"ctfd"` | no |
+| <a name="input_ecs_cluster_name"></a> [ecs\_cluster\_name](#input\_ecs\_cluster\_name) | Name of the created ECS cluster | `string` | `"ctfd-ecs"` | no |
 | <a name="input_elasticache_cluster_instance_type"></a> [elasticache\_cluster\_instance\_type](#input\_elasticache\_cluster\_instance\_type) | Instance type for instance in ElastiCache cluster | `string` | `"cache.r6g.large"` | no |
 | <a name="input_elasticache_cluster_instances"></a> [elasticache\_cluster\_instances](#input\_elasticache\_cluster\_instances) | Number of instances in ElastiCache cluster | `number` | `3` | no |
 | <a name="input_elasticache_cluster_port"></a> [elasticache\_cluster\_port](#input\_elasticache\_cluster\_port) | Port to connect to the ElastiCache cluster on | `number` | `6379` | no |

@@ -3,8 +3,8 @@ data "aws_vpc" "selected" {
 }
 # Create an ElastiCache security group.
 resource "aws_security_group" "elasticache" {
-  name        = "elasticache_security_group"
-  description = "ElastiCache security group"
+  name        = "${var.app_name}_elasticache_security_group"
+  description = "ElastiCache security group for ${var.app_name}"
   vpc_id      = var.vpc_id
 
   # Allow ElastiCache port from the frontend security group
@@ -24,6 +24,6 @@ resource "aws_security_group" "elasticache" {
   }
 
   tags = {
-    Name = "elasticache_security_group"
+    Name = "${var.app_name}_elasticache_security_group"
   }
 }

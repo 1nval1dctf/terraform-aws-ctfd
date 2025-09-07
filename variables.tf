@@ -34,6 +34,12 @@ variable "elasticache_cluster_port" {
   default     = 6379
 }
 
+variable "ecs_cluster_name" {
+  type        = string
+  description = "Name of the created ECS cluster"
+  default     = "ctfd-ecs"
+}
+
 # RDS configuration
 variable "db_serverless" {
   type        = bool
