@@ -116,7 +116,7 @@ variable "db_collation" {
 variable "https_certificate_arn" {
   type        = string
   description = "SSL Certificate ARN to be used for the HTTPS server."
-  default     = ""
+  default     = null
 }
 
 variable "s3_encryption_key_arn" {

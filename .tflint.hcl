@@ -3,7 +3,7 @@ config {
   disabled_by_default = false
   variables = [
     # "create_eks=true",
-    "create_cdn=true"
+    #"create_cdn=true"
     ]
 }
 

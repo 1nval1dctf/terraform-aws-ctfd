@@ -10,21 +10,17 @@ terraform {
 
 module "ecs" {
   source       = "terraform-aws-modules/ecs/aws"
-  version      = "5.12.0"
+  version      = "6.6.1"
   cluster_name = var.ecs_cluster_name
 
   # Capacity provider
-  fargate_capacity_providers = {
+  default_capacity_provider_strategy = {
     FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-        base   = 20
-      }
+      weight = 50
+      base   = 20
     }
     FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+      weight = 50
     }
   }
 }

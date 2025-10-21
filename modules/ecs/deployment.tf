@@ -72,7 +72,7 @@ module "container_definition" {
     logDriver = "awslogs"
     options = {
       awslogs-group         = aws_cloudwatch_log_group.ctfd.name
-      awslogs-region        = data.aws_region.current.name
+      awslogs-region        = data.aws_region.current.region
       awslogs-stream-prefix = var.app_name
     }
   }
@@ -109,7 +109,7 @@ module "container_definition" {
     },
     {
       name  = "AWS_S3_REGION"
-      value = data.aws_region.current.name
+      value = data.aws_region.current.region
     },
     {
       name  = "ACCESS_LOG"

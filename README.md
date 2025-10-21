@@ -57,7 +57,7 @@ flowchart TB
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.7.3 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.38.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 6.17.0 |
 | <a name="requirement_docker"></a> [docker](#requirement\_docker) | 3.0.2 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | 3.6.0 |
 ## Providers
@@ -98,7 +98,7 @@ flowchart TB
 | <a name="input_frontend_desired_count"></a> [frontend\_desired\_count](#input\_frontend\_desired\_count) | Desired number of task instances for the frontend service. | `number` | `2` | no |
 | <a name="input_frontend_maximum_percent"></a> [frontend\_maximum\_percent](#input\_frontend\_maximum\_percent) | health percent for the frontend service. | `number` | `150` | no |
 | <a name="input_frontend_minimum_healthy_percent"></a> [frontend\_minimum\_healthy\_percent](#input\_frontend\_minimum\_healthy\_percent) | Minimum health percent for the frontend service. | `number` | `75` | no |
-| <a name="input_https_certificate_arn"></a> [https\_certificate\_arn](#input\_https\_certificate\_arn) | SSL Certificate ARN to be used for the HTTPS server. | `string` | `""` | no |
+| <a name="input_https_certificate_arn"></a> [https\_certificate\_arn](#input\_https\_certificate\_arn) | SSL Certificate ARN to be used for the HTTPS server. | `string` | `null` | no |
 | <a name="input_rds_encryption_key_arn"></a> [rds\_encryption\_key\_arn](#input\_rds\_encryption\_key\_arn) | Encryption key for use with RDS at-rest encryption. Unencrypted if this is empty. | `string` | `""` | no |
 | <a name="input_registry_password"></a> [registry\_password](#input\_registry\_password) | Password for container registry. Needed if using a private registry for a custom CTFd image. | `string` | `null` | no |
 | <a name="input_registry_server"></a> [registry\_server](#input\_registry\_server) | Container registry server. Needed if using a private registry for a custom CTFd image. | `string` | `"registry.gitlab.com"` | no |
